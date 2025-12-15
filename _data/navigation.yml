@@ -26,8 +26,8 @@ main:
   - title: "CV"
     url: /cv/
     
-  # - title: "CV"
-  #   url: /cv-json/
+  - title: "中文"
+    url: /chinese/
     
   # - title: "Guide"
   #   url: /markdown/
