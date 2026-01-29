@@ -5,7 +5,7 @@ category: manuscripts
 permalink: /publication/rmre
 date: 2025-12-14
 venue: 'Rock Mechanics and Rock Engineering'
-
+paperurl: 'https://link.springer.com/article/10.1007/s00603-025-05239-4'
 citation: 'Li, Zhuang; Zhang, Zeqiang; Xu, Nuwen; Gao, Feng; Li, Biao. (2025). &quot;Characterizing Failure Mechanism of Soft and Hard Rocks: Implication from Acoustic Emission and Machine Learning.&quot; <i>Rock Mechanics and Rock Engineering</i>.'
 ---
 
