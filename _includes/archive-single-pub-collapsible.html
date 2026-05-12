@@ -21,7 +21,7 @@
         {% endif %}
       </div>
       <div class="pub-collapsible__meta" style="font-size:0.88em; color:#666; margin-top:0.2em;">
-        {% if authors_raw %}<span class="pub-authors">{{ authors_raw }}</span><br />{% endif %}
+        {% if authors_raw %}<span class="pub-authors">{{ authors_raw | replace: "Zhang, Zeqiang", "<strong>Zhang, Zeqiang</strong>" }}</span><br />{% endif %}
         <span class="pub-venue"><em>{{ post.venue }}</em>{% if post.date %}, {{ post.date | default: "1900-01-01" | date: "%Y" }}{% endif %}</span>
       </div>
     </div>
