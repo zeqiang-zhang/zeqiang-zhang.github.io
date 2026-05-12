@@ -1,0 +1,74 @@
+{% include base_path %}
+
+{% if post.id %}
+  {% assign title = post.title | markdownify | remove: "<p>" | remove: "</p>" %}
+{% else %}
+  {% assign title = post.title %}
+{% endif %}
+
+{% assign citation_parts = post.citation | split: ". (" %}
+{% assign authors_raw = citation_parts[0] %}
+
+<div class="pub-collapsible__item">
+  <div class="pub-collapsible__header" onclick="this.parentElement.classList.toggle('pub-open')" style="cursor:pointer; display:flex; align-items:flex-start; gap:0.5em; padding:0.6em 0;">
+    <span class="pub-collapsible__arrow" style="flex-shrink:0; font-size:0.75em; margin-top:0.25em; transition:transform 0.2s;">&#9654;</span>
+    <div style="flex:1;">
+      <div class="pub-collapsible__title" style="font-weight:600; font-size:1em; line-height:1.4;">
+        {% if post.link %}
+          <a href="{{ post.link }}" onclick="event.stopPropagation()">{{ title }}</a>
+        {% else %}
+          <a href="{{ base_path }}{{ post.url }}" rel="permalink" onclick="event.stopPropagation()">{{ title }}</a>
+        {% endif %}
+      </div>
+      <div class="pub-collapsible__meta" style="font-size:0.88em; color:#666; margin-top:0.2em;">
+        <em>{{ post.venue }}</em>{% if post.date %}, {{ post.date | default: "1900-01-01" | date: "%Y" }}{% endif %}
+        {% if authors_raw %} &mdash; {{ authors_raw }}{% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="pub-collapsible__details" style="display:none; padding:0.5em 0 0.8em 1.8em;">
+    {% if post.excerpt %}
+      <p class="archive__item-excerpt" itemprop="description">{{ post.excerpt | markdownify }}</p>
+    {% endif %}
+
+    {% if post.citation and post.paperurl and post.slidesurl and post.bibtexurl %}
+      <p>{{ post.citation }}<br /><a href="{{ post.paperurl }}">Download Paper</a> | <a href="{{ post.slidesurl }}">Download Slides</a> | <a href="{{ post.bibtexurl }}">Download Bibtex</a></p>
+    {% elsif post.citation and post.paperurl and post.slidesurl %}
+      <p>{{ post.citation }}<br /><a href="{{ post.paperurl }}">Download Paper</a> | <a href="{{ post.slidesurl }}">Download Slides</a></p>
+    {% elsif post.citation and post.paperurl and post.bibtexurl %}
+      <p>{{ post.citation }}<br /><a href="{{ post.paperurl }}">Download Paper</a> | <a href="{{ post.bibtexurl }}">Download Bibtex</a></p>
+    {% elsif post.citation and post.paperurl %}
+      <p>{{ post.citation }}<br /><a href="{{ post.paperurl }}">Download Paper</a></p>
+    {% elsif post.citation and post.slidesurl %}
+      <p>{{ post.citation }}<br /><a href="{{ post.slidesurl }}">Download Slides</a></p>
+    {% elsif post.citation and post.bibtexurl %}
+      <p>{{ post.citation }}<br /><a href="{{ post.bibtexurl }}">Download Bibtex</a></p>
+    {% elsif post.citation %}
+      <p>{{ post.citation }}</p>
+    {% elsif post.paperurl and post.bibtexurl %}
+      <p><a href="{{ post.paperurl }}">Download Paper</a> | <a href="{{ post.bibtexurl }}">Download Bibtex</a></p>
+    {% elsif post.paperurl %}
+      <p><a href="{{ post.paperurl }}">Download Paper</a></p>
+    {% elsif post.slidesurl %}
+      <p><a href="{{ post.slidesurl }}">Download Slides</a></p>
+    {% elsif post.bibtexurl %}
+      <p><a href="{{ post.bibtexurl }}">Download Bibtex</a></p>
+    {% endif %}
+  </div>
+</div>
+
+<style>
+.pub-collapsible__item + .pub-collapsible__item {
+  border-top: 1px solid #e8e8e8;
+}
+.pub-collapsible__header:hover .pub-collapsible__title a {
+  text-decoration: underline;
+}
+.pub-open > .pub-collapsible__header .pub-collapsible__arrow {
+  transform: rotate(90deg);
+}
+.pub-open > .pub-collapsible__details {
+  display: block !important;
+}
+</style>
