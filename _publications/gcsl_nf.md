@@ -6,6 +6,7 @@ permalink: /publication/gcsl_nf
 date: 2025-09-03
 venue: 'Arxiv'
 paperurl: 'https://www.arxiv.org/abs/2509.03206'
+demourl: '/demos/gcsl_nf/'
 citation: 'Zhang, Zeqiang; Wurzberger, Fabian; Schmid, Gerrit; Gottwald, Sebastian; Braun, Daniel. (2025). &quot;Autonomous Learning From Success and Failure: Goal-Conditioned Supervised Learning with Negative Feedback.&quot; <i>Arxiv</i>.'
 ---
 ![Fig.](/images/gcsl_nf.png)

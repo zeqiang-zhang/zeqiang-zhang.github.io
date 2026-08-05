@@ -1,0 +1,723 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>From Individual Learning to Market Equilibrium — arXiv:2507.18229</title>
+<meta name="description" content="Project page for 'From Individual Learning to Market Equilibrium: Correcting Structural and Parametric Biases in RL Simulations of Economic Models' (arXiv:2507.18229). A naive RL agent in a search-and-matching model learns to be a monopsonist; a calibrated mean-field framework restores the competitive equilibrium.">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div id="progress"></div>
+<div id="tooltip" class="tooltip"></div>
+
+<!-- ================= NAV ================= -->
+<nav class="nav">
+  <div class="wrap">
+    <a href="#top" class="brand"><span class="logo"></span> Learning &rarr; Equilibrium</a>
+    <button class="nav-burger" id="burger" aria-label="Menu">☰</button>
+    <div class="nav-links" id="navlinks">
+      <a href="#conflict">Conflict</a>
+      <a href="#model">Model</a>
+      <a href="#structural">Bias I</a>
+      <a href="#parametric">Bias II</a>
+      <a href="#fix">The fix</a>
+      <a href="#results">Results</a>
+      <a href="#cite">Cite</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ================= HERO ================= -->
+<header class="hero" id="top">
+  <div class="wrap">
+    <div class="hero-inner">
+      <p class="venue">arXiv:2507.18229 · econ.GN / cs.AI</p>
+      <h1 class="paper-title">From Individual Learning to Market Equilibrium</h1>
+      <p class="lead" style="text-align:center;margin:-8px auto 26px;max-width:44ch">Correcting structural and
+        parametric biases in RL simulations of economic models</p>
+
+      <div class="authors">
+        <div class="au">
+          <div class="n">Ruxin Chen</div>
+          <div class="aff">Department of Economics<br>Nagoya University, Japan</div>
+        </div>
+        <div class="au">
+          <div class="n">Zeqiang Zhang <span class="tag">corresponding</span></div>
+          <div class="aff">Institute of Neural Information Processing<br>Ulm University, Germany</div>
+        </div>
+      </div>
+
+      <div class="abstract">
+        <span class="lbl">Abstract</span>
+        <p style="margin-top:0">Applying Reinforcement Learning (RL) to economic modeling reveals a fundamental
+        tension: standard RL agents do not behave as competitive price-takers. While macroeconomic models typically
+        assume agents take aggregate conditions as given, a naive single-agent RL algorithm learns to internalize
+        its impact on the environment, <b>effectively exerting market power</b>. We illustrate this divergence in a
+        search-and-matching model with concave production, showing that a standard RL agent converges to a
+        <b>monopsonistic allocation</b> rather than the competitive equilibrium. Furthermore, we show that RL's
+        approach to time discounting distorts standard intertemporal economic trade-offs. To resolve these issues,
+        we propose a <b>Calibrated Mean-Field Reinforcement Learning</b> framework that restricts the agent to
+        optimize against an exogenous aggregate state to restore price-taking behavior, and recalibrates the RL
+        reward structure to reflect true economic opportunity costs. By iteratively updating the aggregate state,
+        our algorithm converges to a stationary fixed point that recovers the competitive equilibrium.</p>
+      </div>
+
+      <nav class="hero-links">
+        <a class="primary" href="https://arxiv.org/abs/2507.18229" target="_blank" rel="noopener">
+          <span class="ic">arXiv</span> 2507.18229</a>
+        <a href="https://arxiv.org/pdf/2507.18229" target="_blank" rel="noopener"><span class="ic">PDF</span> Paper</a>
+        <!-- <a href="https://arxiv.org/html/2507.18229v2" target="_blank" rel="noopener"><span class="ic">HTML</span> Full text</a> -->
+        <a href="#cite"><span class="ic">BIB</span> BibTeX</a>
+      </nav>
+    </div>
+  </div>
+
+  <!-- <div class="wrap">
+    <div class="highlights">
+      <div class="h"><b>2</b><span>Distinct biases, each fatal on its own</span></div>
+      <div class="h"><b>0.78</b><span>Equilibrium tightness <i>θ*</i> the simulation must hit</span></div>
+      <div class="h"><b>1.69<small>×</small></b><span>Cost understatement from the discounting mismatch</span></div>
+      <div class="h"><b>4</b><span>Configurations; only one lands on the benchmark</span></div>
+    </div>
+  </div> -->
+</header>
+
+<!-- ================= THE CONFLICT ================= -->
+<section id="conflict">
+  <div class="wrap">
+    <div class="reveal">
+      <span class="section-tag">The conflict</span>
+      <h2>Economics assumes a price-taker. RL builds a <em>manipulator</em>.</h2>
+      <p class="lead">Canonical macroeconomic models rest on agents so small that they take aggregate conditions as
+        given. A single-agent RL environment is a closed loop: whatever the agent does comes back to it through the
+        state. Put an optimizer in that loop and it will find the feedback and exploit it. This is not a bug in the
+        optimizer &mdash; it is the optimizer doing its job in a world that was never meant to be a closed loop.</p>
+    </div>
+
+    <div class="grid g2 reveal" style="margin-top:32px;gap:26px">
+      <div class="card" style="border-top:3px solid var(--theory)">
+        <p class="kicker">What the theory says</p>
+        <h3>Atomistic firms</h3>
+        <p>Each firm is one of a continuum. Its own vacancy posting has no measurable effect on market tightness
+          <span class="mono">θ</span>, so it optimizes taking <span class="mono">θ</span> &mdash; and therefore the
+          wage &mdash; as fixed. This <em>tightness-taker</em> assumption is what makes the job-creation condition
+          an equilibrium condition rather than a monopsonist's first-order condition.</p>
+      </div>
+      <div class="card" style="border-top:3px solid var(--neither)">
+        <p class="kicker">What the simulation does</p>
+        <h3>One agent, one environment</h3>
+        <p>The RL agent's action sets the vacancy count; the environment computes
+          <span class="mono">θ = v/u</span> from it and feeds back a wage. So
+          <span class="mono">∂θ/∂v ≠ 0</span>, and the agent learns it can hold vacancies back to depress the wage
+          it pays on every worker it already has. It converges to monopsony.</p>
+      </div>
+    </div>
+
+    <div class="reveal" style="margin-top:30px">
+      <div class="callout" style="font-size:16px">
+        <b>The agency&ndash;structure dilemma.</b> The paper's diagnosis is that this is not an implementation
+        error but a category error: the RL formulation grants the agent an agency the economic model explicitly
+        denies it. A second, subtler error rides along with it &mdash; RL and economics do not mean the same thing
+        by "the cost of a vacancy". Both must be fixed; fixing either alone makes things worse in a different
+        direction.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= THE MODEL ================= -->
+<section id="model">
+  <div class="wrap">
+    <div class="reveal">
+      <span class="section-tag">Section 3 · the benchmark</span>
+      <h2>A search-and-matching economy with concave production</h2>
+      <p class="lead">A unit mass of risk-neutral workers, a continuum of identical firms, both discounting at rate
+        <i>r</i>. Firms produce with labor alone under diminishing returns, post vacancies at cost <i>c</i>, and
+        fill them with probability <i>q</i>(<i>θ</i>). Matches dissolve at rate <i>λ</i>. Everything the rest of the
+        paper does is measured against this model's unique steady state.</p>
+    </div>
+
+    <div class="grid g2 reveal" style="margin-top:28px;gap:26px">
+      <div class="card">
+        <h3>The firm's problem</h3>
+        <p>Choose vacancies each period to maximize the present value of profits, subject to the law of motion for
+          employment.</p>
+        <div class="eq inline">
+          <math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
+            <mi>&#966;</mi><mo>(</mo><msub><mi>l</mi><mi>t</mi></msub><mo>)</mo><mo>=</mo>
+            <munder><mo movablelimits="false">max</mo><msub><mi>v</mi><mi>t</mi></msub></munder>
+            <mrow><mo>{</mo><mi>f</mi><mo>(</mo><msub><mi>l</mi><mi>t</mi></msub><mo>)</mo>
+            <mo>&#8722;</mo><mi>w</mi><mo>(</mo><msub><mi>l</mi><mi>t</mi></msub><mo>)</mo>
+            <msub><mi>l</mi><mi>t</mi></msub><mo>&#8722;</mo><mi>c</mi><msub><mi>v</mi><mi>t</mi></msub>
+            <mo>+</mo><mfrac><mn>1</mn><mrow><mn>1</mn><mo>+</mo><mi>r</mi></mrow></mfrac>
+            <mi>&#966;</mi><mo>(</mo><msub><mi>l</mi><mrow><mi>t</mi><mo>+</mo><mn>1</mn></mrow></msub><mo>)</mo><mo>}</mo></mrow>
+          </math>
+        </div>
+        <div class="eq inline" style="margin-top:10px">
+          <math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
+            <msub><mi>l</mi><mrow><mi>t</mi><mo>+</mo><mn>1</mn></mrow></msub><mo>=</mo>
+            <mo>(</mo><mn>1</mn><mo>&#8722;</mo><mi>&#955;</mi><mo>)</mo><msub><mi>l</mi><mi>t</mi></msub>
+            <mo>+</mo><mi>q</mi><mo>(</mo><msub><mi>&#952;</mi><mi>t</mi></msub><mo>)</mo><msub><mi>v</mi><mi>t</mi></msub>
+          </math>
+        </div>
+        <p style="margin-top:16px"><b style="color:var(--ink)">Functional forms.</b> Production
+          <span class="mono">f(l)=A l<sup>α</sup></span>; matching <span class="mono">q(θ)=a θ<sup>−φ</sup></span>;
+          and a Nash-bargained wage in which the unemployment benefit is endogenous,
+          <span class="mono">b = ρw</span>.</p>
+        <div class="eq inline">
+          <math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
+            <mi>w</mi><mo>(</mo><mi>l</mi><mo>)</mo><mo>=</mo>
+            <mfrac><mrow><mi>&#951;</mi><mi>&#945;</mi><mi>A</mi>
+              <msup><mi>l</mi><mrow><mi>&#945;</mi><mo>&#8722;</mo><mn>1</mn></mrow></msup></mrow>
+              <mrow><mi>&#951;</mi><mi>&#945;</mi><mo>+</mo><mn>1</mn><mo>&#8722;</mo><mi>&#951;</mi></mrow></mfrac>
+            <mo>+</mo><mo>(</mo><mn>1</mn><mo>&#8722;</mo><mi>&#951;</mi><mo>)</mo><mi>b</mi>
+            <mo>+</mo><mi>&#951;</mi><mi>c</mi><mi>&#952;</mi>
+          </math>
+        </div>
+      </div>
+
+      <div class="card" style="border-left:3px solid var(--theory)">
+        <p class="kicker">The condition everything turns on</p>
+        <h3>Job creation</h3>
+        <p>From the Bellman equation and the envelope condition, a firm hires until the marginal surplus of a worker
+          equals the expected discounted cost of finding one.</p>
+        <div class="eq hero-eq">
+          <math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
+            <msup><mi>f</mi><mo>&#8242;</mo></msup><mo>(</mo><mi>l</mi><mo>)</mo><mo>&#8722;</mo>
+            <mi>w</mi><mo>(</mo><mi>l</mi><mo>)</mo><mo>&#8722;</mo>
+            <msup><mi>w</mi><mo>&#8242;</mo></msup><mo>(</mo><mi>l</mi><mo>)</mo><mi>l</mi>
+            <mo>=</mo>
+            <mfrac><mrow><mo>(</mo><mi>r</mi><mo>+</mo><mi>&#955;</mi><mo>)</mo><mi>c</mi></mrow>
+              <mrow><mi>q</mi><mo>(</mo><mi>&#952;</mi><mo>)</mo></mrow></mfrac>
+          </math>
+        </div>
+        <p style="margin-top:14px">Two things are doing quiet work on the right-hand side. The
+          <span class="mono">(r+λ)</span> capitalises the flow cost over the life of a job <em>and</em> charges the
+          firm for the capital it tied up. And the whole condition presumes <span class="mono">θ</span> is beyond
+          the firm's control. <b>Each of the paper's two biases attacks one of these.</b></p>
+      </div>
+    </div>
+
+    <!-- ---- calibration and steady state ---- -->
+    <div class="grid g2 reveal" style="margin-top:30px;gap:26px;align-items:start">
+      <div class="card">
+        <p class="kicker">Table 1</p>
+        <h3>Calibration</h3>
+        <p style="margin-bottom:14px">Matched to the Japanese labor market. The Hosios condition fixes
+          <i>η</i>&nbsp;=&nbsp;<i>φ</i>; targeting <span class="mono">θ = 0.78</span> and a quarterly job-finding
+          rate of 0.426 pins down <i>a</i>; and <i>c</i> is then determined residually so that the job-creation
+          condition holds at the target.</p>
+        <table class="tbl">
+          <thead><tr><th style="width:1%">Symbol</th><th>Description</th><th style="text-align:right">Value</th></tr></thead>
+          <tbody>
+            <tr><td class="sym">A</td><td>Productivity</td><td class="num">1</td></tr>
+            <tr><td class="sym">a</td><td>Matching efficiency</td><td class="num">0.471</td></tr>
+            <tr class="grp"><td class="sym">α</td><td>Parameter in the production function</td><td class="num">0.667</td></tr>
+            <tr><td class="sym">λ</td><td>Separation rate</td><td class="num">0.0144</td></tr>
+            <tr><td class="sym">η</td><td>Worker's bargaining power</td><td class="num">0.6</td></tr>
+            <tr><td class="sym">φ</td><td>Matching elasticity</td><td class="num">0.6</td></tr>
+            <tr class="grp"><td class="sym">c</td><td>Vacancy cost</td><td class="num">0.268</td></tr>
+            <tr><td class="sym">r</td><td>Interest rate</td><td class="num">0.01</td></tr>
+            <tr><td class="sym">ρ</td><td>Unemployment replacement rate</td><td class="num">0.6</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card" style="border-top:3px solid var(--theory)">
+        <p class="kicker">Table 2</p>
+        <h3>The theoretical steady state</h3>
+        <p style="margin-bottom:14px">Solving the seven equations of Appendix A at that calibration gives a unique
+          competitive equilibrium. <b>Every number the rest of this page is measured against comes from this
+          column.</b></p>
+        <table class="tbl">
+          <thead><tr><th style="width:1%">Symbol</th><th>Variable</th><th style="text-align:right">Value</th></tr></thead>
+          <tbody>
+            <tr><td class="sym">l</td><td>Employment</td><td class="num">0.967</td></tr>
+            <tr><td class="sym">u</td><td>Unemployment</td><td class="num">0.033</td></tr>
+            <tr class="grp"><td class="sym">q</td><td>Vacancy fill rate</td><td class="num">0.547</td></tr>
+            <tr><td class="sym">w</td><td>Wage</td><td class="num">0.831</td></tr>
+            <tr><td class="sym">v</td><td>Vacancies</td><td class="num">0.025</td></tr>
+            <tr class="grp"><td class="sym">θ</td><td>Market tightness</td><td class="num" style="color:var(--theory);font-weight:700">0.78</td></tr>
+            <tr><td class="sym">R*</td><td>Flow profit per period</td><td class="num">0.168</td></tr>
+          </tbody>
+        </table>
+        <p class="eq-note" style="margin-top:14px;font-style:normal">The two numbers that matter downstream are
+          <span class="mono">θ* = 0.78</span> and <span class="mono">R* = 0.168</span>. A correct simulation has to
+          land on both; the naive one lands on neither.</p>
+      </div>
+    </div>
+
+    <details class="acc reveal">
+      <summary>The system behind Table 2 (Appendix A.1)</summary>
+      <div class="body">
+        <p>Seven equations in <span class="mono">{l, u, v, q, θ, w, b}</span>: the job-creation condition, the
+          bargained wage, the flow balance <span class="mono">λl = qv</span>, the matching function
+          <span class="mono">q = aθ<sup>−φ</sup></span>, the definition <span class="mono">θ = v/u</span>, the
+          adding-up constraint <span class="mono">l + u = 1</span>, and the benefit rule
+          <span class="mono">b = ρw</span>.</p>
+        <p style="margin-bottom:0">Flow balance and adding-up collapse to
+          <span class="mono">θ(l) = [λl / (a(1−l))]<sup>1/(1−φ)</sup></span>, so the whole system reduces to a single
+          monotone root-find in <span class="mono">l</span>. That reduction is what the 2&times;2 grid and the
+          first-order-condition diagram further down run on: at the calibration above it returns
+          <span class="mono">l = 0.9674, u = 0.0326, q = 0.5460, w = 0.8306, v = 0.0255, θ = 0.7818,
+          R* = 0.1678</span> &mdash; Table 2 to three decimals in every variable.</p>
+      </div>
+    </details>
+  </div>
+</section>
+
+<!-- ================= STRUCTURAL BIAS ================= -->
+<section id="structural">
+  <div class="wrap">
+    <div class="reveal">
+      <span class="section-tag">Bias I · structural</span>
+      <h2>The agent discovers it is not small</h2>
+      <p class="lead">Differentiate the RL agent's steady-state objective with respect to its own vacancy posting
+        and an extra term appears that has no business being there.</p>
+    </div>
+
+    <div class="reveal" style="margin-top:26px">
+      <div class="eq">
+        <span class="eq-num">the manipulator's FOC</span>
+        <math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
+          <msup><mi>f</mi><mo>&#8242;</mo></msup><mo>&#8722;</mo><mi>w</mi><mo>&#8722;</mo>
+          <msup><mi>w</mi><mo>&#8242;</mo></msup><mi>l</mi><mo>=</mo>
+          <mfrac>
+            <mrow><mi>c</mi><mo>+</mo>
+              <mfrac><mrow><mo>&#8706;</mo><mi>&#952;</mi></mrow><mrow><mo>&#8706;</mo><mi>v</mi></mrow></mfrac>
+              <mo>&#8901;</mo><mi>l</mi><mo>&#8901;</mo>
+              <mfrac><mrow><mo>&#8706;</mo><mi>w</mi></mrow><mrow><mo>&#8706;</mo><mi>&#952;</mi></mrow></mfrac></mrow>
+            <mrow><mfrac><mi>q</mi><mi>&#955;</mi></mfrac><mo>+</mo>
+              <mfrac><mi>v</mi><mi>&#955;</mi></mfrac><mo>&#8901;</mo>
+              <mfrac><mrow><mi>d</mi><mi>q</mi></mrow><mrow><mi>d</mi><mi>&#952;</mi></mrow></mfrac><mo>&#8901;</mo>
+              <mfrac><mrow><mo>&#8706;</mo><mi>&#952;</mi></mrow><mrow><mo>&#8706;</mo><mi>v</mi></mrow></mfrac></mrow>
+          </mfrac>
+        </math>
+      </div>
+      <p class="eq-note">Set <span class="mono">∂θ/∂v = 0</span> and this collapses to the job-creation condition.
+        Leave it non-zero and the numerator acquires a term the firm dislikes &mdash; posting one more vacancy
+        raises <span class="mono">θ</span>, which raises the wage it must pay on <em>every</em> worker it already
+        employs. The agent responds by holding vacancies back. That is monopsony, learned from scratch.</p>
+    </div>
+
+    <figure class="fig reveal" style="margin-top:28px">
+      <div class="grid g2" style="gap:18px">
+        <svg id="fig1Reward" class="chart" viewBox="0 0 460 300" role="img"
+             aria-label="Final reward per period during naive RL training, converging above the theoretical value of 0.168."></svg>
+        <svg id="fig1Theta" class="chart" viewBox="0 0 460 300" role="img"
+             aria-label="Market tightness during naive RL training, collapsing far below the theoretical equilibrium of 0.78."></svg>
+      </div>
+      <figcaption><b>Figure 1 · Market tightness <i>θ</i>: theoretical benchmark vs. RL outcome.</b> Left: the
+        firm's flow reward during training, against the theoretical steady-state value of <b>0.168</b>. Right:
+        market tightness over the same episodes, against the theoretical <b>0.78</b>. Once the policy converges,
+        tightness settles around <b>0.05&ndash;0.14</b> &mdash; an order of magnitude too low &mdash; while the
+        reward sits at <b>0.28</b>, well <em>above</em> the competitive benchmark. Shaded bands are ±1 standard
+        deviation across five independent runs; hover any point for its value.
+        </figcaption>
+    </figure>
+
+    <div class="reveal" style="margin-top:24px">
+      <div class="callout" style="font-size:16px">
+        <b>The agent did not fail to optimize.</b> Its reward converges <em>above</em> the competitive benchmark.
+        It solved a different problem correctly &mdash; and extracting supernormal profits by suppressing the
+        market is exactly what solving that problem looks like.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= PARAMETRIC BIAS ================= -->
+<section id="parametric">
+  <div class="wrap">
+    <div class="reveal">
+      <span class="section-tag">Bias II · parametric</span>
+      <h2>The same letter <em>c</em>, two different costs</h2>
+      <p class="lead">Economics capitalises the vacancy cost over the life of the job and charges the firm for the
+        capital it tied up. RL discounts a per-period penalty by <i>γ</i> and stops there. The job separation rate
+        enters the RL environment through the transition dynamics but never through the valuation of cost.</p>
+    </div>
+
+    <div class="lab reveal" style="margin-top:26px">
+      <div class="lab-head">
+        <span class="k">Interactive</span>
+        <h3>How large is the gap?</h3>
+      </div>
+      <div class="grid g2" style="grid-template-columns:1fr 1.15fr;gap:30px;align-items:start;margin-top:6px">
+        <div>
+          <div class="grid g2" style="gap:6px 20px">
+            <div class="card" style="border-top:3px solid var(--theory);padding:16px">
+              <p class="kicker" style="margin-bottom:6px">Economics</p>
+              <div class="eq inline" style="margin:0;background:none;border:0;padding:0">
+                <math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
+                  <mfrac><mrow><mo>(</mo><mi>r</mi><mo>+</mo><mi>&#955;</mi><mo>)</mo><mi>c</mi></mrow>
+                    <mrow><mi>q</mi><mo>(</mo><mi>&#952;</mi><mo>)</mo></mrow></mfrac>
+                </math>
+              </div>
+              <p style="font-size:13px;margin:10px 0 0">Separation hazard <em>and</em> opportunity cost of capital.</p>
+            </div>
+            <div class="card" style="border-top:3px solid var(--neither);padding:16px">
+              <p class="kicker" style="margin-bottom:6px">Naive RL</p>
+              <div class="eq inline" style="margin:0;background:none;border:0;padding:0">
+                <math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
+                  <mfrac><mrow><mi>&#955;</mi><mi>c</mi></mrow>
+                    <mrow><mi>q</mi><mo>(</mo><mi>&#952;</mi><mo>)</mo></mrow></mfrac>
+                </math>
+              </div>
+              <p style="font-size:13px;margin:10px 0 0">Separation hazard only. The capital is free.</p>
+            </div>
+          </div>
+
+          <div class="eq" style="margin-top:18px">
+            <span class="eq-num">bias factor</span>
+            <math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
+              <mi>&#967;</mi><mo>=</mo>
+              <mfrac><mrow><mo>(</mo><mi>r</mi><mo>+</mo><mi>&#955;</mi><mo>)</mo><mi>c</mi><mo>/</mo><mi>q</mi></mrow>
+                <mrow><mi>&#955;</mi><mi>c</mi><mo>/</mo><mi>q</mi></mrow></mfrac>
+              <mo>=</mo><mn>1</mn><mo>+</mo><mfrac><mi>r</mi><mi>&#955;</mi></mfrac>
+            </math>
+          </div>
+
+          <div class="control" style="margin-top:18px">
+            <label>Interest rate <i>r</i> <b id="chiRv">0.0100</b></label>
+            <input type="range" id="chiR" min="0.001" max="0.05" step="0.0005" value="0.01">
+          </div>
+          <div class="control">
+            <label>Separation rate <i>λ</i> <b id="chiLv">0.0144</b></label>
+            <input type="range" id="chiL" min="0.004" max="0.08" step="0.0005" value="0.0144">
+          </div>
+
+          <div class="readout" style="margin-top:18px">
+            <div class="r"><div class="v" id="chiVal" style="color:var(--neither)">—</div>
+              <div class="l">χ · true cost ÷ perceived cost</div></div>
+            <div class="r"><div class="v" id="ceffVal" style="color:var(--both)">—</div>
+              <div class="l">c<sub>eff</sub> at c = 0.268</div></div>
+          </div>
+          <p class="hint" style="font-size:13px;color:var(--muted);margin-top:12px">
+            The bias is worst where jobs are long-lived. Push <i>λ</i> toward zero &mdash; lifetime employment
+            &mdash; and the RL agent's perceived hiring cost falls toward nothing, because the entire cost of a
+            match is the capital locked up in it.</p>
+        </div>
+        <div>
+          <svg id="chiChart" class="chart" viewBox="0 0 560 380" role="img"
+               aria-label="Cost understatement factor chi as a function of the separation rate"></svg>
+          <div class="legend">
+            <div class="li"><span class="sw" style="background:var(--neither)"></span>χ = 1 + r/λ at the current <i>r</i></div>
+            <div class="li"><span class="dash" style="color:var(--muted)"></span>other interest rates</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="reveal" style="margin-top:24px">
+      <div class="callout" style="font-size:16px">
+        <b>At the paper's calibration this is not a rounding error.</b> With <span class="mono">r = 0.01</span> and
+        <span class="mono">λ = 0.0144</span>, the RL agent perceives hiring as <b>41% cheaper</b> than it is. Left
+        alone it over-hires; combined with the structural bias it under-hires for a different reason. The two
+        biases push in opposite directions, which is precisely why fixing one is not progress.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= THE FIX ================= -->
+<section id="fix">
+  <div class="wrap">
+    <div class="reveal">
+      <span class="section-tag">Section 5 · the framework</span>
+      <h2>Calibrated Mean-Field Reinforcement Learning</h2>
+      <p class="lead">One correction per bias. Freeze the aggregate during training so the agent cannot see its own
+        footprint, and rescale the cost so that a period of vacancy posting means what the economist means by it.
+        Then let the aggregate catch up between training runs.</p>
+    </div>
+
+    <div class="grid g2 reveal" style="margin-top:30px;gap:26px">
+      <div class="card" style="border-top:3px solid var(--accent)">
+        <p class="kicker" style="color:var(--accent)">Structural correction</p>
+        <h3>Embed the agent in a mean field</h3>
+        <p>Reframe the economy as a mean-field game. The representative agent optimizes against a
+          <em>fixed</em> field <span class="mono">θ<sup>(k)</sup></span>, so <span class="mono">∂θ/∂v = 0</span> by
+          construction and price-taking is restored. Between iterations the field is recomputed from the population
+          the policy implies. Atomism is imposed by the architecture rather than hoped for.</p>
+      </div>
+      <div class="card" style="border-top:3px solid var(--both)">
+        <p class="kicker" style="color:var(--both)">Parametric correction</p>
+        <h3>Charge the agent for capital</h3>
+        <p>Replace <span class="mono">c</span> in the reward with an effective cost that capitalises the flow over
+          the job's expected life and prices the foregone return.</p>
+        <div class="eq inline">
+          <math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
+            <msub><mi>c</mi><mrow><mi>eff</mi></mrow></msub><mo>:=</mo>
+            <mrow><mo>(</mo><mn>1</mn><mo>+</mo><mfrac><mi>r</mi><mi>&#955;</mi></mfrac><mo>)</mo></mrow><mi>c</mi>
+          </math>
+        </div>
+        <p style="margin-top:12px">At the paper's calibration <span class="mono">c = 0.268</span> becomes
+          <span class="mono">c<sub>eff</sub> = 0.454</span>. This is not a numerical patch: it embeds a worldview
+          in which capital has alternative uses.</p>
+      </div>
+    </div>
+
+    <div class="grid g2 reveal" style="margin-top:26px;gap:26px;align-items:start">
+      <div class="algo">
+        <div class="ttl">Algorithm 1 · Calibrated Mean-Field RL</div>
+        <ol class="steps">
+          <li><span class="c"><span class="kw">input</span> calibration <span class="mv">A</span>,
+            <span class="mv">a</span>, <span class="mv">α</span>, <span class="mv">λ</span>,
+            <span class="mv">η</span>, <span class="mv">c</span>, <span class="mv">φ</span>,
+            <span class="mv">r</span>, <span class="mv">ρ</span></span></li>
+          <li><span class="c">Compute the effective vacancy cost
+            <b class="expr">c<sub>eff</sub> &nbsp;&#8592;&nbsp; (r + λ) &middot; c / λ</b></span></li>
+          <li><span class="c">Initialise the mean field <b>θ<sup>(0)</sup></b></span></li>
+          <li><span class="c"><span class="kw">for</span> k = 0, 1, 2, … <span class="kw">until</span> convergence <span class="kw">do</span></span></li>
+          <li class="d1"><span class="c">Solve the single-agent RL problem under the frozen field, with per-period reward
+            <b class="expr">r<sub>t</sub> &nbsp;=&nbsp; f(l<sub>t</sub>) &minus; w(l<sub>t</sub>, θ<sup>(k)</sup>)&thinsp;l<sub>t</sub> &minus; c<sub>eff</sub>&thinsp;v<sub>t</sub></b></span></li>
+          <li class="d1"><span class="c">Obtain the optimal policy <b>π<sup>(k)</sup></b></span></li>
+          <li class="d1"><span class="c">Simulate the firm population under <b>π<sup>(k)</sup></b> and aggregate to
+            get the new field <b>θ<sup>(k+1)</sup></b></span></li>
+          <li><span class="c"><span class="kw">end for</span></span></li>
+          <li><span class="c"><span class="kw">return</span> the fixed point
+            <b>θ* = Ψ(θ*)</b> and its policy</span></li>
+        </ol>
+        <p class="foot">Line 2 is the <em>parametric</em> correction; freezing the field in line 5 is the
+          <em>structural</em> one. Neither touches the network architecture &mdash; the agent is an ordinary
+          DDPG learner throughout.</p>
+      </div>
+      <div class="card">
+        <p class="kicker">Theorem 1 · Appendix C</p>
+        <h3>When does the loop converge?</h3>
+        <p>Write <span class="mono">Ψ(θ) = Φ(π*<sub>θ</sub>)</span> for the composite of "best-respond to the field"
+          and "aggregate the population back into a field". If the policy map is Lipschitz with constant
+          <span class="mono">L₁</span> and the aggregator with <span class="mono">L₂</span>, and
+          <span class="mono">L = L₁L₂ &lt; 1</span>, then <span class="mono">Ψ</span> is a contraction: a unique
+          fixed point exists and the iterates converge at rate <span class="mono">L<sup>k</sup></span> by Banach.</p>
+        <p style="margin-top:12px">The paper is careful here &mdash; verifying global Lipschitz bounds for a deep
+          network is intractable, so it leans on DDPG's Polyak averaging to make the policy move gradually. The
+          panel below shows how much that gradualism is actually doing.</p>
+      </div>
+    </div>
+
+    <!-- ---- fixed-point iteration ---- -->
+    <div class="lab reveal" style="margin-top:28px">
+      <div class="lab-head">
+        <span class="k">Interactive</span>
+        <h3>The mean-field iteration, and why it needs to be slow</h3>
+      </div>
+      <div class="grid g2" style="grid-template-columns:1fr 1.4fr;gap:30px;align-items:start;margin-top:6px">
+        <div>
+          <p style="color:var(--ink-2);font-size:14.5px;margin-top:0">Each outer iteration moves the field part of
+            the way toward the agent's best response:
+            <span class="mono">θ<sub>k+1</sub> = θ<sub>k</sub> + ω(Ψ(θ<sub>k</sub>) − θ<sub>k</sub>)</span>.
+            In the paper's algorithm <span class="mono">ω</span> is implicit &mdash; it is <em>how</em> far a
+            partially trained DDPG agent moves in one round. (It is a device of this page, not the paper's
+            notation; <span class="mono">η</span> is reserved for the bargaining share of Table 1.) Near the
+            fixed point the deviation obeys
+            <span class="mono">θ<sub>k+1</sub> − θ* = s(θ<sub>k</sub> − θ*)</span> with
+            <span class="mono">s = 1 + ω(Ψ′ − 1)</span>, and Theorem 1 asks for
+            <span class="mono">|s| &lt; 1</span>.</p>
+          <div class="control" style="margin-top:18px">
+            <label>Relaxation <i>ω</i> <b id="etaVal">0.0060</b></label>
+            <input type="range" id="etaIn" min="0.0005" max="0.030" step="0.0005" value="0.006">
+            <p class="hint">Below the stability threshold the loop contracts to <i>θ*</i>. Above it, the field
+              overshoots and oscillates away.</p>
+          </div>
+          <div class="control">
+            <label>Starting field <i>θ<sub>0</sub></i> <b id="th0Val">0.30</b></label>
+            <input type="range" id="th0In" min="0.10" max="1.20" step="0.01" value="0.30">
+          </div>
+          <div class="readout" style="margin-top:16px">
+            <div class="r"><div class="v" id="fpVerdict" style="font-size:20px">—</div>
+              <div class="l">behaviour near the fixed point</div></div>
+          </div>
+          <div class="readout" style="margin-top:14px">
+            <div class="r"><div class="v" id="fpSlope" style="font-size:20px">—</div>
+              <div class="l">Ψ′(θ*) · slope of the raw map</div></div>
+            <div class="r"><div class="v" id="fpEta" style="font-size:20px">—</div>
+              <div class="l">stability threshold for ω</div></div>
+          </div>
+        </div>
+        <div>
+          <svg id="fpChart" class="chart" viewBox="0 0 640 380" role="img"
+               aria-label="Market tightness over mean-field iterations under different relaxation rates"></svg>
+          <div class="legend">
+            <div class="li"><span class="sw" style="background:var(--accent)"></span>θ over iterations</div>
+            <div class="li"><span class="dash" style="color:var(--theory)"></span>theoretical equilibrium θ* = 0.78</div>
+          </div>
+        </div>
+      </div>
+      <p class="eq-note" style="margin-top:18px;padding-top:14px;border-top:1px solid var(--line)">
+        <b>What this panel adds to the paper.</b> Solve the firm's problem <em>exactly</em> at each iteration and
+        the resulting map is far from a contraction: its slope at the fixed point is about <b>−224</b> at this
+        calibration, and for any field below <i>θ*</i> the static best response is a corner &mdash; hire everyone,
+        which sends the implied tightness to infinity. Exact-best-response fictitious play does not merely converge
+        slowly here; it cannot be started. That is why the trajectory above is the <em>linearised</em> one, and why
+        the stability threshold is so small: <span class="mono">ω ≲ 0.009</span>.
+        <br><br>
+        None of this is a defect of the framework. It is a quantitative version of the caveat the paper itself
+        raises in Section 5.4 &mdash; <span class="mono">L₁L₂ &lt; 1</span> is delivered by the learning algorithm's
+        gradualism, not by the economics. A partially trained DDPG agent with bounded actions and Polyak-averaged
+        targets never takes the full step, which is precisely what makes the published iteration in Figure 2
+        converge smoothly where the idealised one would not.
+        <span class="muted">Derived here from the paper's equations; not a figure from the paper.</span></p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= RESULTS ================= -->
+<section id="results">
+  <div class="wrap">
+    <div class="reveal">
+      <span class="section-tag">Section 6 · results</span>
+      <h2>Both corrections, or neither works</h2>
+      <p class="lead">The paper's central empirical claim is that the two fixes are not substitutes. Below, each of
+        the four configurations is solved directly from its own first-order condition, at the calibration in
+        Table 1.</p>
+    </div>
+
+    <div class="lab reveal" style="margin-top:26px">
+      <div class="lab-head">
+        <span class="k">Derived</span>
+        <h3>Market tightness under each configuration</h3>
+        <span class="mono muted" style="font-size:12.5px;margin-left:auto">benchmark θ* = <b id="benchTh">0.782</b></span>
+      </div>
+      <div class="quad" id="quadGrid">
+        <div></div>
+        <div class="hdr">Cost left as <i>c</i><br><span style="color:var(--neither)">parametric bias present</span></div>
+        <div class="hdr">Cost calibrated to <i>c</i><sub>eff</sub><br><span style="color:var(--both)">parametric bias fixed</span></div>
+
+        <div class="lab-y">Single agent · manipulator</div>
+        <div class="cell" style="--c:var(--neither)" id="cellNaive"></div>
+        <div class="cell" style="--c:var(--param)" id="cellParam"></div>
+
+        <div class="lab-y">Mean field · price-taker</div>
+        <div class="cell" style="--c:var(--struct)" id="cellStruct"></div>
+        <div class="cell win" style="--c:var(--both)" id="cellBoth"></div>
+      </div>
+      <p class="eq-note" style="margin-top:18px">
+        <b>How these are computed.</b> Each cell root-solves the job-creation condition of its own configuration:
+        the mean-field rows drop the <span class="mono">∂θ/∂v</span> terms from the manipulator's first-order
+        condition, and the calibrated
+        columns use <span class="mono">(r+λ)c</span> in place of <span class="mono">λc</span>. Market clearing
+        <span class="mono">θ(l) = [λl/(a(1−l))]<sup>1/(1−φ)</sup></span> closes the system.
+        <span class="muted">Derived here from the paper's equations; the published figures below report what the
+        trained agents actually did.</span></p>
+    </div>
+
+    <!-- ---- FOC diagram ---- -->
+    <div class="lab reveal" style="margin-top:28px">
+      <div class="lab-head">
+        <span class="k">Derived</span>
+        <h3>One picture of all four</h3>
+      </div>
+      <p style="color:var(--ink-2);max-width:82ch;margin-top:0">The downward-sloping curve is the marginal surplus
+        of a worker as a function of market tightness. The four flatter curves are the marginal cost of hiring one,
+        as each configuration perceives it. Where a cost curve crosses the surplus curve is where that
+        configuration stops hiring.</p>
+      <svg id="focChart" class="chart" viewBox="0 0 960 420" role="img"
+           aria-label="Marginal surplus against the four perceived marginal cost curves, as a function of market tightness"></svg>
+      <div class="legend" style="margin-top:6px">
+        <div class="li"><span class="sw" style="background:var(--theory)"></span>marginal surplus f′ − w − w′l</div>
+        <div class="li"><span class="sw" style="background:var(--both)"></span>both corrections</div>
+        <div class="li"><span class="sw" style="background:var(--struct)"></span>structural only</div>
+        <div class="li"><span class="sw" style="background:var(--param)"></span>parametric only</div>
+        <div class="li"><span class="sw" style="background:var(--neither)"></span>neither</div>
+      </div>
+      <p class="eq-note" style="margin-top:14px">The two monopsony curves sit far above the two price-taking ones,
+        because the manipulator adds the wage it would pay on its whole existing workforce to the cost of one more
+        hire. That vertical gap is the structural bias. The smaller gap <em>within</em> each pair &mdash; a factor
+        of <span class="mono">χ</span> &mdash; is the parametric bias. Only the green curve crosses at
+        <span class="mono">θ*</span>.</p>
+    </div>
+
+    <!-- ---- published figures ---- -->
+    <figure class="fig reveal" style="margin-top:30px">
+      <div class="grid g2" style="gap:18px">
+        <svg id="fig2Reward" class="chart" viewBox="0 0 460 300" role="img"
+             aria-label="Reward per period over mean-field iterations, settling just below the theoretical value of 0.168."></svg>
+        <svg id="fig2Theta" class="chart" viewBox="0 0 460 300" role="img"
+             aria-label="Market tightness over mean-field iterations converging to the theoretical equilibrium of 0.78."></svg>
+      </div>
+      <figcaption><b>Figure 2 · Theoretical equilibrium vs. fully corrected MF-RL.</b> Both corrections applied.
+        Left: the firm's reward per period, now sitting <em>at or slightly below</em> the competitive
+        <b>0.168</b> rather than above it &mdash; the supernormal profit of Figure 1 is gone. Right: market
+        tightness, which climbs from the initial <b>0.30</b> and then fluctuates around <b>0.78</b>, ending at
+        <b>0.767</b>. Shaded bands are ±1 standard deviation across five independent runs; hover any point.
+        </figcaption>
+    </figure>
+
+    <figure class="fig reveal" style="margin-top:22px">
+      <div class="grid g2" style="gap:18px">
+        <svg id="fig3Struct" class="chart" viewBox="0 0 460 300" role="img"
+             aria-label="Structural correction only: market tightness settles near 0.89, above the benchmark of 0.78."></svg>
+        <svg id="fig3Param" class="chart" viewBox="0 0 460 300" role="img"
+             aria-label="Parametric correction only: market tightness collapses to below 0.2, far under the benchmark."></svg>
+      </div>
+      <figcaption><b>Figure 3 · Ablations &mdash; each correction alone.</b> Left: <b>structural correction only</b>
+        &mdash; the agent is a price-taker but still discounts a vacancy at <span class="mono">λc</span> instead of
+        <span class="mono">(r+λ)c</span>, so it over-hires and <i>θ</i> settles around <b>0.89</b>, above the
+        benchmark. Right: <b>parametric correction only</b> &mdash; the cost is right but the agent still believes
+        it moves the market, so <i>θ</i> collapses to <b>0.03&ndash;0.21</b>, an order of magnitude below it. Both
+        panels are against the same theoretical <b>0.78</b>; note the different horizontal scales (50 mean-field
+        iterations vs. 20 single-agent episodes) and that episode 0 of the right panel is off-scale at <b>13.5</b>.
+        </figcaption>
+    </figure>
+
+    <figure class="fig reveal" style="margin-top:22px">
+      <svg id="fig4Policy" class="chart" viewBox="0 0 940 340" role="img"
+           aria-label="The learned policy function: market tightness declining as the unemployment rate rises, passing near the theoretical equilibrium point."></svg>
+      <figcaption><b>Figure 4 · The learned policy function.</b> The converged actor evaluated on a grid of
+        employment states, giving market tightness <i>θ</i> as a function of the unemployment rate
+        <i>u<sub>t</sub></i>. The ★ marks the theoretical steady state <span class="mono">(0.033, 0.78)</span>.
+        The corrected agent posts <em>counter-cyclically</em> &mdash; tightness falls monotonically as
+        unemployment rises, from <b>2.20</b> at <span class="mono">u = 0.01</span> to <b>0.66</b> at
+        <span class="mono">u = 0.20</span> &mdash; so it recovered the equilibrium <em>decision rule</em>, not
+        merely the equilibrium point. </figcaption>
+    </figure>
+
+    <div class="reveal" style="margin-top:30px">
+      <div class="grid g3" style="gap:20px">
+        <div class="card"><p class="kicker">Finding 1</p><h3 style="font-size:18px">Quantification of bias</h3>
+          <p>The naive agent behaves as a monopsonist, deviating sharply from the competitive equilibrium. Standard
+            RL agents exploit their environment if not structurally constrained.</p></div>
+        <div class="card" style="border-color:var(--both)"><p class="kicker" style="color:var(--both)">Finding 2</p>
+          <h3 style="font-size:18px">Effectiveness of calibration</h3>
+          <p>With both corrections the simulation converges to the theoretical benchmark, reproducing the target
+            tightness and unemployment rate with high precision.</p></div>
+        <div class="card"><p class="kicker">Finding 3</p><h3 style="font-size:18px">Necessity of dual correction</h3>
+          <p>Structural correction alone over-hires through cost underestimation; parametric correction alone still
+            manipulates the market. Only the joint application is consistent.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= CITE ================= -->
+<section id="cite">
+  <div class="wrap">
+    <div class="reveal">
+      <span class="section-tag">Citation</span>
+      <h2>Cite this work</h2>
+      <div class="bib-head" style="margin-top:22px">
+        <button class="btn" id="copyBib">Copy BibTeX</button>
+        <a class="btn btn-primary" href="https://arxiv.org/abs/2507.18229" target="_blank" rel="noopener">Open on arXiv</a>
+        <span class="muted mono" style="font-size:12.5px" id="copyMsg"></span>
+      </div>
+<pre class="bib" id="bibtex">@misc{chen2025individual,
+  <span class="k">author</span>       = {Chen, Ruxin and Zhang, Zeqiang},
+  <span class="k">title</span>        = {From Individual Learning to Market Equilibrium: Correcting Structural and Parametric Biases in RL Simulations of Economic Models},
+  <span class="k">year</span>         = {2025},
+  <span class="k">eprint</span>       = {2507.18229},
+  <span class="k">archivePrefix</span>= {arXiv},
+  <span class="k">primaryClass</span> = {econ.GN},
+  <span class="k">doi</span>          = {10.48550/arXiv.2507.18229},
+  <span class="k">url</span>          = {https://arxiv.org/abs/2507.18229}
+}</pre>
+
+    </div>
+  </div>
+</section>
+
+
+
+<script src="app.js"></script>
+</body>
+</html>

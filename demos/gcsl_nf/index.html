@@ -1,0 +1,914 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Autonomous Learning From Success and Failure — GCSL-NF</title>
+<meta name="description" content="Project page for 'Autonomous Learning From Success and Failure: Goal-Conditioned Supervised Learning with Negative Feedback'. GCSL-NF evaluates every trajectory twice — positively against relabelled goals and correctively against the goal originally intended — using a similarity function learned contrastively from trajectories, so no reward function and no geometric distance need be specified.">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div id="progress"></div>
+<div class="tooltip" id="tooltip"></div>
+
+<nav class="nav">
+  <div class="wrap">
+    <a class="brand" href="#top"><span class="logo"></span> GCSL-NF</a>
+    <button class="nav-burger" aria-label="menu">&#9776;</button>
+    <div class="nav-links">
+      <a href="#problem">Problem</a>
+      <a href="#method">Method</a>
+      <a href="#similarity">Similarity</a>
+      <a href="#results">Results</a>
+      <a href="#robustness">Robustness</a>
+      <a href="#position">Position</a>
+      <a href="#cite">Cite</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ================= HERO ================= -->
+<header class="hero" id="top">
+  <div class="wrap hero-inner">
+    <p class="venue">arXiv:2509.03206</p>
+    <h1 class="paper-title">Autonomous Learning From Success and Failure</h1>
+    <p class="paper-sub">Goal-Conditioned Supervised Learning with Negative Feedback</p>
+          <div class="authors">
+        <div class="au">
+          <div class="n">Zeqiang Zhang, Fabian Wurzberger, Gerrit Schmid, Sebastian Gottwald, Daniel A. Braun </div>
+          <div class="aff">Institute of Neural Information Processing<br>Ulm University, Germany</div>
+        </div>
+      </div>
+
+    <div class="abstract">
+      <span class="lbl">Abstract</span>
+      <p>Learning from human-engineered reward functions and imitation learning of human-generated
+        demonstrations are the two principal approaches for training autonomous systems. Both require
+        human specification for each behaviour to be acquired &mdash; a problem for long-lived
+        self-adaptive systems whose goals and operating conditions cannot be fully anticipated at design
+        time. Goal-Conditioned Supervised Learning (GCSL) offers a self-supervised alternative through
+        self-imitation, but has two limitations: learning only from self-generated experience can
+        <b>exacerbate the agent's own biases</b>, and relabelling lets the agent attend only to
+        successful outcomes, <b>precluding it from learning from its mistakes</b>.</p>
+      <p>We propose <b>Goal-Conditioned Supervised Learning with Negative Feedback (GCSL-NF)</b>, which
+        evaluates each trajectory twice: positively with respect to relabelled goals, and correctively
+        with respect to the goal originally intended. The corrective target comes from a similarity
+        function learned contrastively from trajectory-induced neighbourhood relations, so that neither
+        a reward function nor a geometric distance needs to be specified. GCSL-NF overcomes limitations
+        imposed by initial biases, increasingly benefits from negative feedback as learning progresses,
+        and matches or surpasses leading GCSL- and HER-based methods across discrete and continuous
+        goal-reaching tasks. Its learning signal remains informative under corrupted priors, runtime
+        goal shift, sensor and actuation noise, and constraints enforced only during training.</p>
+    </div>
+
+    <div class="hero-links">
+              <a class="primary" href="https://arxiv.org/abs/2509.03206" target="_blank" rel="noopener">
+          <span class="ic">arXiv</span> 2509.03206</a>
+        <a href="https://arxiv.org/pdf/2509.03206" target="_blank" rel="noopener"><span class="ic">PDF</span> Paper</a>
+        <a href="#cite"><span class="ic">BIB</span> BibTeX</a>
+      <a class="primary" href="https://github.com/zeqiang-zhang/gcsl_nf" target="_blank" rel="noopener">
+        <span class="ic">code</span> Code on GitHub</a>
+
+      <!-- <a href="iclr2027_conference.tex"><span class="ic">tex</span> Manuscript source</a>/ -->
+      <!-- <a href="#results"><span class="ic">&#8595;</span> Results</a> -->
+    </div>
+
+    <!-- <div class="highlights">
+      <div class="h"><b>0</b><span>reward functions specified</span></div>
+      <div class="h"><b>5</b><span>goal-reaching environments</span></div>
+      <div class="h"><b>5</b><span>baselines, HER- and GCSL-based</span></div>
+      <div class="h"><b>9</b><span>research questions, RQ1&ndash;RQ9</span></div>
+      <div class="h"><b>5</b><span>seeds behind every curve</span></div>
+    </div>
+  </div> -->
+</header>
+
+<!-- ================= PROBLEM ================= -->
+<section id="problem">
+  <div class="wrap">
+    <div class="reveal">
+      <span class="section-tag">The gap</span>
+      <h2>A failed trajectory is relabelled into a success &mdash; and the failure is thrown away</h2>
+      <p class="lead">Hindsight relabelling rescues data by reinterpreting what an agent <em>did</em>
+        achieve as what it <em>meant</em> to achieve. That is a real gain, and it is also the whole
+        problem: after relabelling, nothing in the training signal records that the trajectory was
+        wrong for the goal actually requested.</p>
+    </div>
+
+    <div class="grid g2 reveal" style="margin-top:28px;gap:26px;align-items:start">
+      <figure class="fig">
+        <svg viewBox="0 0 460 300" role="img"
+             aria-label="An agent starting at point A aims for point B but arrives at point C. GCSL keeps only the green path as a demonstration for C; GCSL-NF additionally records that the path was a poor route to B.">
+          <defs>
+            <marker id="arrowG" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M0 0 L10 5 L0 10 z" fill="#3f7a4e"/>
+            </marker>
+          </defs>
+          <rect x="18" y="18" width="424" height="230" rx="8" fill="#f1ece0" stroke="rgba(58,46,28,.28)"/>
+          <!-- the executed path A -> C -->
+          <path d="M78 208 C 130 150, 168 196, 214 158 S 286 120, 330 96"
+                fill="none" stroke="#3f7a4e" stroke-width="2.6" stroke-linecap="round"
+                marker-end="url(#arrowG)"/>
+          <!-- the miss -->
+          <path d="M330 96 L 246 62" fill="none" stroke="#c0392b" stroke-width="1.8"
+                stroke-dasharray="5 4"/>
+          <circle cx="78" cy="208" r="6" fill="#2b261f"/>
+          <circle cx="330" cy="96" r="6" fill="#3f7a4e"/>
+          <circle cx="246" cy="62" r="6" fill="#c0392b"/>
+          <text x="78" y="230" class="tick" text-anchor="middle" fill="#2b261f" font-weight="700">A · start</text>
+          <text x="330" y="130" class="tick" text-anchor="middle" fill="#3f7a4e" font-weight="700">C · achieved</text>
+          <text x="246" y="46" class="tick" text-anchor="middle" fill="#c0392b" font-weight="700">B · intended</text>
+          <text x="300" y="70" class="tick" fill="#c0392b" font-style="italic">the miss</text>
+          <text x="34" y="272" class="axlab" fill="#3f7a4e">GCSL keeps: “this is how to reach C.”</text>
+          <text x="34" y="290" class="axlab" fill="#c0392b">GCSL-NF also keeps: “this was a poor way to reach B.”</text>
+        </svg>
+        <figcaption><b>Figure 1 &middot; The motivating example.</b> The agent starts at <i>A</i> intending
+          to reach <i>B</i> and ends at <i>C</i>. The green line is the path actually taken; the red
+          dashed line is the gap between the achieved state and the original goal. GCSL uses only the
+          first reading of this episode. GCSL-NF uses both.</figcaption>
+      </figure>
+
+      <div>
+        <div class="card">
+          <p class="kicker">What the objective does</p>
+          <h3 style="font-size:19px">GCSL maximises one likelihood</h3>
+          <p>The training set is <span class="mono">D = {(s<sub>t</sub>, a<sub>t</sub>, g′)}</span> with
+            <span class="mono">g′</span> a future state of the same trajectory, and the policy maximises
+            <span class="mono">log π(a<sub>t</sub> | s<sub>t</sub>, g′)</span>. The mismatch between the
+            achieved outcome and the original <span class="mono">g</span> never enters the loss.</p>
+          <p>So a trajectory that wandered is certified as expert behaviour for wherever it wandered to.
+            With a biased initial policy, or after the goal distribution changes, the agent keeps
+            certifying its own habit.</p>
+        </div>
+        <div class="callout" style="margin-top:22px;font-size:15.5px">
+          <b>Why not just add a reward?</b> Because a distance in observation space is exactly the
+          engineering step self-imitation was meant to remove &mdash; and it fails outright where the
+          observation is a LiDAR scan, in which <span class="mono">L2</span> proximity carries no
+          reliable information about task progress.
+        </div>
+        <div class="callout" style="margin-top:18px;font-size:15.5px">
+          <b>The move.</b> Learn the distance instead. A similarity function trained contrastively on
+          trajectory-induced neighbourhood relations answers "was the achieved state close to the goal
+          the agent was given?" &mdash; the one question needed to turn a failure into supervision.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= METHOD ================= -->
+<section id="method">
+  <div class="wrap">
+    <div class="reveal">
+      <span class="section-tag">The method</span>
+      <h2>Every trajectory is read twice</h2>
+      <p class="lead">One learned object, <span class="mono">p<sub>θ</sub>(succ(g) = 1 | s<sub>t</sub>,
+        a<sub>t</sub>)</span>, is the probability that acting with <span class="mono">a<sub>t</sub></span>
+        at <span class="mono">s<sub>t</sub></span> ends near <span class="mono">g</span>. Two losses pull
+        on it: the relabelled reading pulls its target to 1, the original-goal reading pulls it to
+        whatever the learned similarity says the trajectory actually achieved.</p>
+    </div>
+
+    <figure class="fig reveal" style="margin-top:28px">
+      <img src="fig2.svg" alt="Diagram of GCSL-NF: the agent samples trajectories, reconsiders them against both relabelled goals and original goals, and updates the policy and the similarity function.">
+      <figcaption><b>Figure 2 &middot; The GCSL-NF loop.</b> The agent samples trajectories, reconsiders each
+        one against both its relabelled goals and its original goal, and updates the policy and the
+        similarity function. In the notation of this page: the upper path is
+        <span class="mono">𝒯₊ → L₊</span> (Eq. 1&ndash;2), the lower path is
+        <span class="mono">𝒯<sub>o</sub> → L<sub>o</sub></span> scored by
+        <span class="mono">p<sub>φ</sub></span> (Eq. 3&ndash;4), and the two meet in the combined update
+        of Eq. (5). The only quantity that judges “did this reach what was asked?” is
+        <span class="mono">p<sub>φ</sub></span>, itself learned from the buffer &mdash; no external
+        reward enters the loop at any point.</figcaption>
+    </figure>
+
+    <div class="grid g2 reveal" style="margin-top:30px;gap:28px;align-items:start">
+      <div>
+        <h3>The relabelled reading</h3>
+        <p style="color:var(--ink-2);font-size:15px">Every state reachable later in the same trajectory is
+          a goal that trajectory did reach, so the recorded action is treated as expert. A regularisation
+          term pushes every <em>other</em> action down, which is what makes
+          <span class="mono">p<sub>θ</sub></span> a calibrated classifier rather than an unnormalised score.</p>
+        <div class="eq">
+          <span class="eq-num">(2)</span>
+          <math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
+            <msub><mi>L</mi><mo>+</mo></msub><mo stretchy="false">(</mo><mi>&#952;</mi><mo stretchy="false">)</mo>
+            <mo>=</mo>
+            <msub><mi>&#120124;</mi><mrow><mo>(</mo><msub><mi>s</mi><mi>t</mi></msub><mo>,</mo>
+              <msub><mi>a</mi><mi>t</mi></msub><mo>,</mo><msup><mi>g</mi><mo>&#8242;</mo></msup><mo>)</mo>
+              <mo>&#8764;</mo><msub><mi>&#119827;</mi><mo>+</mo></msub></mrow></msub>
+            <mrow><mo>[</mo>
+              <mi>H</mi><mo stretchy="false">(</mo><msub><mi>p</mi><mi>&#952;</mi></msub>
+              <mo stretchy="false">(</mo><mi>succ</mi><mo stretchy="false">(</mo><msup><mi>g</mi><mo>&#8242;</mo></msup>
+              <mo stretchy="false">)</mo><mo>=</mo><mn>1</mn><mo>&#8739;</mo><msub><mi>s</mi><mi>t</mi></msub>
+              <mo>,</mo><msub><mi>a</mi><mi>t</mi></msub><mo stretchy="false">)</mo><mo>,</mo><mn>1</mn>
+              <mo stretchy="false">)</mo>
+              <mo>+</mo>
+              <mi>&#945;</mi><munder><mo>&#8721;</mo><mrow><mi>a</mi><mo>&#8712;</mo><mi>&#119964;</mi></mrow></munder>
+              <mi>H</mi><mo stretchy="false">(</mo><msub><mi>p</mi><mi>&#952;</mi></msub>
+              <mo stretchy="false">(</mo><mi>succ</mi><mo stretchy="false">(</mo><msup><mi>g</mi><mo>&#8242;</mo></msup>
+              <mo stretchy="false">)</mo><mo>=</mo><mn>1</mn><mo>&#8739;</mo><msub><mi>s</mi><mi>t</mi></msub>
+              <mo>,</mo><mi>a</mi><mo stretchy="false">)</mo><mo>,</mo><mn>0</mn><mo stretchy="false">)</mo>
+            <mo>]</mo></mrow>
+          </math>
+        </div>
+        <p class="eq-note">The first term is imitation, the second is regularisation.
+          <span class="mono">H(x, y) = &minus;y log x &minus; (1&minus;y) log(1&minus;x)</span> is the binary
+          cross entropy; <span class="mono">&alpha; = 0.2</span> throughout the experiments.</p>
+      </div>
+
+      <div>
+        <h3>The original-goal reading</h3>
+        <p style="color:var(--ink-2);font-size:15px">The same tuples are re-scored against the goal the
+          agent was actually given. The target is not 0 and not 1 &mdash; it is
+          <span class="mono">p<sub>φ</sub>(s<sub>T</sub>, g)</span>, the learned estimate of how close the
+          trajectory's endpoint came. Steps further from the end are discounted, because they are less
+          responsible for where it ended up.</p>
+        <div class="eq">
+          <span class="eq-num">(4)</span>
+          <math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
+            <msub><mi>L</mi><mi>o</mi></msub><mo stretchy="false">(</mo><mi>&#952;</mi><mo stretchy="false">)</mo>
+            <mo>=</mo>
+            <msub><mi>&#120124;</mi><mrow><msub><mi>&#119827;</mi><mi>o</mi></msub></mrow></msub>
+            <mrow><mo>[</mo>
+              <msup><mi>&#947;</mi><mrow><mi>T</mi><mo>&#8722;</mo><mi>t</mi></mrow></msup>
+              <mspace width="0.16em"/>
+              <mi>H</mi><mo stretchy="false">(</mo><msub><mi>p</mi><mi>&#952;</mi></msub>
+              <mo stretchy="false">(</mo><mi>succ</mi><mo stretchy="false">(</mo><mi>g</mi>
+              <mo stretchy="false">)</mo><mo>=</mo><mn>1</mn><mo>&#8739;</mo><msub><mi>s</mi><mi>t</mi></msub>
+              <mo>,</mo><msub><mi>a</mi><mi>t</mi></msub><mo stretchy="false">)</mo><mo>,</mo>
+              <msub><mi>p</mi><mi>&#966;</mi></msub><mo stretchy="false">(</mo>
+              <msub><mi>s</mi><mi>T</mi></msub><mo>,</mo><mi>g</mi><mo stretchy="false">)</mo>
+              <mo stretchy="false">)</mo>
+            <mo>]</mo></mrow>
+          </math>
+        </div>
+        <p class="eq-note">This is not a reward penalty. It is the supervised target obtained by
+          evaluating the same experience against a different goal &mdash; which is why the method stays
+          entirely inside supervised learning.</p>
+      </div>
+    </div>
+
+    <div class="grid g2 reveal" style="margin-top:26px;gap:26px;align-items:start">
+      <div class="algo">
+        <div class="ttl">GCSL-NF &middot; one training round</div>
+        <ol class="steps">
+          <li><span class="c">Sample a goal <b>g &#8764; p(𝒢)</b></span></li>
+          <li><span class="c">Roll out greedily, <b>a<sub>t</sub> = argmax<sub>a</sub> p<sub>θ</sub>(succ(g)=1 | s<sub>t</sub>, a)</b>,
+            for T steps; add <b>τ<sub>g</sub></b> to the buffer <b>ℛ</b></span></li>
+          <li class="d1"><span class="c"><span class="pos">positive</span> &mdash; relabel to
+            <b>𝒯₊ = {(s<sub>t</sub>, a<sub>t</sub>, g′ = s<sub>t+i</sub>)}</b> and take one step on
+            <b>L₊</b></span></li>
+          <li class="d1"><span class="c"><span class="neg">corrective</span> &mdash; build
+            <b>𝒯<sub>o</sub> = {(s<sub>t</sub>, a<sub>t</sub>, s<sub>T</sub>, g)}</b>, score it with
+            <b>p<sub>φ</sub>(s<sub>T</sub>, g)</b>, take one step on <b>L<sub>o</sub></b></span></li>
+          <li><span class="c">Update the policy on the combined loss
+            <b class="expr">θ<sub>new</sub> &nbsp;&#8592;&nbsp; argmin<sub>θ</sub> ( β₁ L₊(θ) + β₂ L<sub>o</sub>(θ) ),&nbsp;&nbsp; β₁ = β₂ = 1</b></span></li>
+          <li><span class="c">Update <b>φ</b> on the contrastive loss of Eq. (11)</span></li>
+        </ol>
+        <p class="foot">There is no <em>ε</em>-greedy schedule and no action noise: the policy is greedy
+          from the first episode, and exploration is driven by the corrective term pushing the agent off
+          actions that keep missing.</p>
+      </div>
+
+      <div class="card">
+        <p class="kicker">Continuous action spaces &middot; §3.3</p>
+        <h3 style="font-size:19px">The same two readings, one actor added</h3>
+        <p>The regularisation term of <span class="mono">L₊</span> sums over all actions, which only makes
+          sense when they are enumerable. In the continuous case it is evaluated at the single action the
+          actor proposes, following the deterministic policy gradient:</p>
+        <div class="eq inline" style="background:var(--surface-2)">
+          <span class="eq-num">(7)</span>
+          <math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
+            <msub><mi>L</mi><mi>a</mi></msub><mo stretchy="false">(</mo><msub><mi>&#952;</mi><mn>2</mn></msub>
+            <mo stretchy="false">)</mo><mo>=</mo>
+            <msub><mi>&#120124;</mi><mrow><mo>(</mo><mi>s</mi><mo>,</mo><msup><mi>s</mi><mo>&#8242;</mo></msup>
+              <mo>)</mo><mo>&#8764;</mo><mi>&#8475;</mi></mrow></msub>
+            <mrow><mo>[</mo><mo>&#8722;</mo><msub><mi>p</mi><msub><mi>&#952;</mi><mn>1</mn></msub></msub>
+            <mo stretchy="false">(</mo><mi>succ</mi><mo stretchy="false">(</mo><msup><mi>s</mi><mo>&#8242;</mo></msup>
+            <mo stretchy="false">)</mo><mo>=</mo><mn>1</mn><mo>&#8739;</mo><mi>s</mi><mo>,</mo>
+            <msub><mi>&#960;</mi><msub><mi>&#952;</mi><mn>2</mn></msub></msub>
+            <mo stretchy="false">(</mo><mi>s</mi><mo>,</mo><msup><mi>s</mi><mo>&#8242;</mo></msup>
+            <mo stretchy="false">)</mo><mo stretchy="false">)</mo><mo>]</mo></mrow>
+          </math>
+        </div>
+        <p style="margin-top:14px"><span class="mono">L<sub>o</sub></span> is unchanged, and
+          <span class="mono">p<sub>φ</sub></span> is trained exactly as before. Both networks are
+          <span class="mono">[400, 300]</span> fully connected with SiLU activations and a logistic
+          output; Adam at <span class="mono">10<sup>&minus;3</sup></span>.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= SIMILARITY ================= -->
+<section id="similarity">
+  <div class="wrap">
+    <div class="reveal">
+      <span class="section-tag">The learned distance</span>
+      <h2>What counts as <em>close</em> is read off the agent's own trajectories</h2>
+      <p class="lead">Ideally two states are close when the agent can get from one to the other in a few
+        steps. That policy-induced distance is not available in advance, so GCSL-NF approximates it:
+        states that occur near each other in time within one trajectory are positives; states far apart in
+        time, or drawn from different trajectories, are negatives.</p>
+    </div>
+
+    <div class="lab reveal" style="margin-top:26px">
+      <div class="lab-head">
+        <span class="k">Live &middot; illustrates Eq. (8)&ndash;(10)</span>
+        <h3>How a training pair is drawn</h3>
+      </div>
+      <p style="color:var(--ink-2);font-size:14.5px;margin-top:2px;max-width:var(--measure)">
+        Each row is one trajectory in the buffer; each dot is one time step. Fix a reference state (the
+        black dot). Positives come from the same trajectory, drawn from a symmetric <b>triangular</b>
+        distribution <span class="mono">&Delta;(i, n)</span> centred on it &mdash; chosen because it has a
+        hard boundary at <span class="mono">n</span>. Everything past that boundary in the same trajectory
+        is a negative, and so is every state of every other trajectory.
+      </p>
+      <div class="control" style="max-width:420px;margin-top:16px">
+        <label>Temporal threshold <i>n</i> <b id="sampN">5</b></label>
+        <input type="range" id="sampNIn" min="1" max="14" step="1" value="5">
+        <p class="hint">The paper uses <span class="mono">n = 5</span> throughout, and shows in Figure 9
+          that <span class="mono">n = 25</span> performs the same.</p>
+      </div>
+      <div id="sampler" style="margin-top:6px"></div>
+      <p class="mono" id="sampCounts" style="font-size:12.5px;color:var(--muted);margin:4px 0 0"></p>
+      <div class="eq" style="margin-top:20px">
+        <span class="eq-num">(8) &ndash; (10)</span>
+        <math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
+          <mtable columnalign="left" rowspacing="0.5em">
+            <mtr><mtd>
+              <msub><mi>&#119967;</mi><mo>+</mo></msub><mo>=</mo>
+              <mo>{</mo><mo>(</mo><msub><mi>s</mi><mi>i</mi></msub><mo>,</mo><msub><mi>s</mi><mi>j</mi></msub><mo>)</mo>
+              <mo>:</mo><msub><mi>s</mi><mi>i</mi></msub><mo>,</mo><msub><mi>s</mi><mi>j</mi></msub>
+              <mo>&#8712;</mo><mi>&#964;</mi><mo>,</mo>
+              <mi>j</mi><mo>=</mo><mi>round</mi><mo>(</mo><msup><mi>j</mi><mo>&#8242;</mo></msup><mo>)</mo>
+              <mo>,</mo><msup><mi>j</mi><mo>&#8242;</mo></msup><mo>&#8764;</mo>
+              <mi>&#916;</mi><mo>(</mo><mi>i</mi><mo>,</mo><mi>n</mi><mo>)</mo><mo>}</mo>
+            </mtd></mtr>
+            <mtr><mtd>
+              <msubsup><mi>&#119967;</mi><mo>&#8722;</mo><mn>1</mn></msubsup><mo>=</mo>
+              <mo>{</mo><mo>(</mo><msub><mi>s</mi><mi>i</mi></msub><mo>,</mo><msub><mi>s</mi><mi>j</mi></msub><mo>)</mo>
+              <mo>:</mo><msub><mi>s</mi><mi>i</mi></msub><mo>,</mo><msub><mi>s</mi><mi>j</mi></msub>
+              <mo>&#8712;</mo><mi>&#964;</mi><mo>,</mo>
+              <mo>&#8739;</mo><mi>i</mi><mo>&#8722;</mo><mi>j</mi><mo>&#8739;</mo><mo>&gt;</mo><mi>n</mi><mo>}</mo>
+            </mtd></mtr>
+            <mtr><mtd>
+              <msubsup><mi>&#119967;</mi><mo>&#8722;</mo><mn>2</mn></msubsup><mo>=</mo>
+              <mo>{</mo><mo>(</mo><msub><mi>s</mi><mi>i</mi></msub><mo>,</mo><msub><mi>s</mi><mi>j</mi></msub><mo>)</mo>
+              <mo>:</mo><msub><mi>s</mi><mi>i</mi></msub><mo>&#8712;</mo><mi>&#964;</mi><mo>,</mo>
+              <msub><mi>s</mi><mi>j</mi></msub><mo>&#8712;</mo><mover><mi>&#964;</mi><mo>~</mo></mover>
+              <mo>,</mo><mi>&#964;</mi><mo>&#8800;</mo><mover><mi>&#964;</mi><mo>~</mo></mover><mo>}</mo>
+            </mtd></mtr>
+          </mtable>
+        </math>
+      </div>
+      <div class="eq">
+        <span class="eq-num">(11)</span>
+        <math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
+          <mi>L</mi><mo stretchy="false">(</mo><mi>&#966;</mi><mo stretchy="false">)</mo><mo>=</mo>
+          <mo>&#8722;</mo><mrow><mo>[</mo>
+            <msub><mi>&#120124;</mi><mrow><mo>(</mo><mi>s</mi><mo>,</mo><msup><mi>s</mi><mo>&#8242;</mo></msup>
+              <mo>)</mo><mo>&#8764;</mo><msub><mi>&#119967;</mi><mo>+</mo></msub></mrow></msub>
+            <mo>[</mo><mi>log</mi><mspace width="0.15em"/><msub><mi>p</mi><mi>&#966;</mi></msub>
+            <mo stretchy="false">(</mo><mi>s</mi><mo>,</mo><msup><mi>s</mi><mo>&#8242;</mo></msup>
+            <mo stretchy="false">)</mo><mo>]</mo>
+            <mo>+</mo>
+            <munder><mo>&#8721;</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn><mo>,</mo><mn>2</mn></mrow></munder>
+            <msub><mi>&#120124;</mi><mrow><mo>(</mo><mi>s</mi><mo>,</mo><msup><mi>s</mi><mo>&#8242;</mo></msup>
+              <mo>)</mo><mo>&#8764;</mo><msubsup><mi>&#119967;</mi><mo>&#8722;</mo><mi>i</mi></msubsup></mrow></msub>
+            <mo>[</mo><mi>log</mi><mo stretchy="false">(</mo><mn>1</mn><mo>&#8722;</mo>
+            <msub><mi>p</mi><mi>&#966;</mi></msub><mo stretchy="false">(</mo><mi>s</mi><mo>,</mo>
+            <msup><mi>s</mi><mo>&#8242;</mo></msup><mo stretchy="false">)</mo><mo stretchy="false">)</mo>
+            <mo>]</mo>
+          <mo>]</mo></mrow>
+        </math>
+      </div>
+      <p class="eq-note">An illustration of the definitions above, generated in the browser rather than
+        measured; the paper's own Figure 3 shows the same construction.</p>
+    </div>
+
+    <!-- <div class="lab reveal" style="margin-top:22px">
+      <div class="lab-head">
+        <span class="k">Live &middot; illustrates Eq. (2) and (4)</span>
+        <h3>The two targets a single trajectory produces</h3>
+      </div>
+      <p style="color:var(--ink-2);font-size:14.5px;margin-top:2px;max-width:var(--measure)">
+        One rollout of length <span class="mono">T = 12</span>. The relabelled reading gives every step a
+        target of 1. The corrective reading gives every step the same target
+        <span class="mono">p<sub>φ</sub>(s<sub>T</sub>, g)</span>, weighted by
+        <span class="mono">&gamma;<sup>T&minus;t</sup></span> &mdash; opacity below tracks that weight.
+      </p>
+      <div class="grid g2" style="gap:26px;margin-top:14px">
+        <div class="control">
+          <label>Discount <i>&gamma;</i> <b id="twoGamma">0.90</b></label>
+          <input type="range" id="twoGammaIn" min="0.5" max="0.99" step="0.01" value="0.9">
+        </div>
+        <div class="control">
+          <label>Learned similarity <i>p<sub>&phi;</sub></i>(<i>s<sub>T</sub></i>, <i>g</i>) <b id="twoP">0.15</b></label>
+          <input type="range" id="twoPIn" min="0.02" max="0.98" step="0.01" value="0.15">
+        </div>
+      </div>
+      <div id="twoTargets" style="margin-top:4px"></div>
+      <p id="twoRead" style="color:var(--ink-2);font-size:14px;margin:8px 0 0;max-width:var(--measure)"></p>
+      <p class="eq-note">Drawn from the definitions, not from a training run.
+        The point it makes is structural: the corrective target is a <em>number between 0 and 1 supplied by
+        a learned function</em>, so the same machinery expresses "badly missed" and "nearly reached".</p>
+    </div> -->
+  </div>
+</section>
+
+<!-- ================= RESULTS ================= -->
+<section id="results">
+  <div class="wrap">
+    <div class="reveal">
+      <span class="section-tag">Results</span>
+      <h2>Experiments results</h2>
+      <p class="lead">Every curve below is redrawn from the authors' own per-seed logs, using each
+        plotting script's own binning and smoothing. Shaded bands are ±1 standard deviation across
+        seeds; hover any panel for the values of all methods at that point.</p>
+    </div>
+
+    <div class="nodata needsdata reveal" style="display:none;margin-top:20px">
+      <b>The figure data has not been generated yet.</b> Run
+      <span class="mono">python export_figure_data.py</span> inside the
+      <span class="mono">GCSL-NF</span> folder; it writes
+      <span class="mono">figure_data.js</span> next to this page.
+    </div>
+
+    <figure class="fig reveal" style="margin-top:26px">
+      <img src="fig/env%20(1).jpg" alt="The five goal-reaching environments: point mass navigation, with obstacles, 2D four-room, 2D LiDAR navigation, and object pushing.">
+      <figcaption><b>Figure 4 &middot; The environments.</b> Red points are the agent, green stars the goal.
+        Left to right: point mass navigation; the same with a central circular obstacle; 2D four-room
+        navigation, where walls make Euclidean proximity misleading; 2D LiDAR navigation, where the
+        observation is a 64-dimensional range scan rather than a position; and object pushing, a discrete
+        Fetch Push variant in which the arm must reach the puck before it can push it.</figcaption>
+    </figure>
+
+    <div class="tblwrap reveal" style="margin-top:26px">
+      <table class="tbl">
+        <caption style="text-align:left;color:var(--muted);font-size:13px;padding-bottom:10px;font-style:italic">
+          Table 1 &middot; the five discrete-action environments (Appendix B.2 of the manuscript).
+          Initial states and goals are sampled uniformly; “move” is {up, down, left, right, stay},
+          “move/turn” is {forward, backward, turn left, turn right, stay}.</caption>
+        <thead><tr>
+          <th>Environment</th><th class="num">Obs. dim</th><th>Action set</th>
+          <th class="num">Horizon</th><th>Notes</th>
+        </tr></thead>
+        <tbody>
+          <tr><td>Point Mass Navigation</td><td class="num">2</td><td>move</td><td class="num">50</td>
+            <td>Obs. range [−1, 1]; step 0.05 with 𝒩(0, 0.01) noise.</td></tr>
+          <tr><td>&nbsp;&nbsp;+ Obstacles</td><td class="num">2</td><td>move</td><td class="num">70</td>
+            <td>Adds a central circular obstacle, radius 0.4 at the origin.</td></tr>
+          <tr><td>2D 4-room Navigation</td><td class="num">2</td><td>move</td><td class="num">70</td>
+            <td>Obs. range [−1.2, 1.2]; passageways of width 0.4.</td></tr>
+          <tr><td>2D LiDAR Navigation</td><td class="num">64</td><td>move/turn</td><td class="num">50</td>
+            <td>Map 200 × 200; 360° scan; step 10 (move), π/2 (turn); goals are LiDAR readings at poses (x, y, θ).</td></tr>
+          <tr><td>Object Pushing</td><td class="num">4</td><td>move</td><td class="num">50</td>
+            <td>Obs. range [−0.5, 0.5]; puck side 0.2; obs. and goal cover end-effector and puck.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ---- Figure 5 ---- -->
+    <figure class="fig reveal" style="margin-top:30px">
+      <div class="panels p4" id="fig5"></div>
+      <div class="legend" id="fig5legend"></div>
+      <figcaption><b>Figure 5 &middot; Discrete-action goal-reaching, RQ1.</b> Distance to the goal against
+        episodes, over the five environments (LiDAR is split into position and orientation, object
+        pushing into puck and end-effector). All methods do well on plain point-mass navigation, where
+        observation distance is aligned with task progress. The advantage grows with obstacles and
+        with the four-room bottlenecks, and is clearest on LiDAR, where the observation is a range scan
+        and the HER baselines' observation-space reward misleads them. On object pushing GCSL-NF is the
+        only method that reliably learns the two-stage behaviour. </figcaption>
+    </figure>
+
+    <div class="tblwrap reveal" style="margin-top:24px">
+      <table class="tbl">
+        <caption style="text-align:left;color:var(--muted);font-size:13px;padding-bottom:10px;font-style:italic">
+          Table 2 &middot; final distance, mean ± sd over 5 seeds. Best in each row in blue.
+          Transcribed from Table 3 of the manuscript.</caption>
+        <thead><tr>
+          <th>Environment</th><th class="num">GCSL-NF</th><th class="num">GCSL</th>
+          <th class="num">HER DQN</th><th class="num">HER A2C</th><th class="num">W-GCSL</th>
+          <th class="num">Contrastive GCRL</th>
+        </tr></thead>
+        <tbody>
+          <tr><td>Point Mass Navigation</td>
+            <td class="num">0.085 <span class="sd">± .037</span></td>
+            <td class="num">0.187 <span class="sd">± .080</span></td>
+            <td class="num">0.066 <span class="sd">± .019</span></td>
+            <td class="num">0.158 <span class="sd">± .029</span></td>
+            <td class="num">0.127 <span class="sd">± .084</span></td>
+            <td class="num"><b>0.065</b> <span class="sd">± .014</span></td></tr>
+          <tr><td>&nbsp;&nbsp;+ Obstacles</td>
+            <td class="num"><b>0.152</b> <span class="sd">± .015</span></td>
+            <td class="num">0.341 <span class="sd">± .050</span></td>
+            <td class="num">0.299 <span class="sd">± .031</span></td>
+            <td class="num">0.481 <span class="sd">± .105</span></td>
+            <td class="num">0.364 <span class="sd">± .034</span></td>
+            <td class="num">0.213 <span class="sd">± .038</span></td></tr>
+          <tr><td>2D 4-Room Navigation</td>
+            <td class="num"><b>0.495</b> <span class="sd">± .089</span></td>
+            <td class="num">0.781 <span class="sd">± .066</span></td>
+            <td class="num">0.658 <span class="sd">± .075</span></td>
+            <td class="num">1.153 <span class="sd">± .312</span></td>
+            <td class="num">0.775 <span class="sd">± .052</span></td>
+            <td class="num">0.668 <span class="sd">± .070</span></td></tr>
+          <tr><td>2D LiDAR &mdash; orientation</td>
+            <td class="num"><b>0.555</b> <span class="sd">± .070</span></td>
+            <td class="num">0.749 <span class="sd">± .087</span></td>
+            <td class="num">1.597 <span class="sd">± .086</span></td>
+            <td class="num">1.520 <span class="sd">± .099</span></td>
+            <td class="num">0.654 <span class="sd">± .147</span></td>
+            <td class="num">1.227 <span class="sd">± .096</span></td></tr>
+          <tr><td>2D LiDAR &mdash; position</td>
+            <td class="num"><b>0.344</b> <span class="sd">± .060</span></td>
+            <td class="num">0.435 <span class="sd">± .040</span></td>
+            <td class="num">0.734 <span class="sd">± .030</span></td>
+            <td class="num">0.879 <span class="sd">± .058</span></td>
+            <td class="num">0.379 <span class="sd">± .043</span></td>
+            <td class="num">0.659 <span class="sd">± .033</span></td></tr>
+          <tr><td>Object Pushing &mdash; puck</td>
+            <td class="num"><b>0.078</b> <span class="sd">± .009</span></td>
+            <td class="num">0.306 <span class="sd">± .035</span></td>
+            <td class="num">0.463 <span class="sd">± .005</span></td>
+            <td class="num">0.458 <span class="sd">± .008</span></td>
+            <td class="num">0.334 <span class="sd">± .031</span></td>
+            <td class="num">0.465 <span class="sd">± .019</span></td></tr>
+          <tr><td>Object Pushing &mdash; end effector</td>
+            <td class="num"><b>0.205</b> <span class="sd">± .016</span></td>
+            <td class="num">0.384 <span class="sd">± .019</span></td>
+            <td class="num">0.321 <span class="sd">± .037</span></td>
+            <td class="num">0.345 <span class="sd">± .112</span></td>
+            <td class="num">0.445 <span class="sd">± .016</span></td>
+            <td class="num">0.440 <span class="sd">± .022</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ---- Figure 6 ---- -->
+    <figure class="fig reveal" style="margin-top:30px">
+      <div class="panels p3" id="fig6"></div>
+      <div class="legend" id="fig6legend"></div>
+      <figcaption><b>Figure 6 &middot; Continuous action spaces, RQ2.</b> Two car-racing point-mass variants
+        (observation is position <em>and</em> velocity; the action controls acceleration) and the two
+        standard Fetch manipulation tasks. All methods handle plain car racing. On the four-room version
+        continuous GCSL collapses for lack of exploration, while DDPG explores through action noise and
+        GCSL-NF through negative feedback on a deterministic policy. On Fetch Push, GCSL and HER DDPG
+        fail to learn at all. Contrastive GCRL reaches the target position but neglects velocity &mdash;
+        its negatives are states from other trajectories, so position dominates as the distinguishing
+        feature.</figcaption>
+    </figure>
+
+    <div class="tblwrap reveal" style="margin-top:24px">
+      <table class="tbl">
+        <caption style="text-align:left;color:var(--muted);font-size:13px;padding-bottom:10px;font-style:italic">
+          Table 3 &middot; continuous-action results, mean ± sd over 5 seeds. Transcribed from Table 4
+          of the manuscript.</caption>
+        <thead><tr>
+          <th>Task</th><th></th><th class="num">GCSL-NF</th><th class="num">GCSL</th>
+          <th class="num">HER DDPG</th><th class="num">Contrastive GCRL</th>
+        </tr></thead>
+        <tbody>
+          <tr><td>Car Racing Point Mass</td><td>Position</td>
+            <td class="num">0.043 <span class="sd">± .019</span></td>
+            <td class="num"><b>0.037</b> <span class="sd">± .010</span></td>
+            <td class="num">0.133 <span class="sd">± .222</span></td>
+            <td class="num">0.173 <span class="sd">± .007</span></td></tr>
+          <tr class="grp"><td></td><td>Velocity</td>
+            <td class="num"><b>0.013</b> <span class="sd">± .008</span></td>
+            <td class="num">0.016 <span class="sd">± .004</span></td>
+            <td class="num">0.054 <span class="sd">± .023</span></td>
+            <td class="num">0.256 <span class="sd">± .008</span></td></tr>
+          <tr><td>Car Racing 4-Room</td><td>Position</td>
+            <td class="num">0.387 <span class="sd">± .077</span></td>
+            <td class="num">1.267 <span class="sd">± .045</span></td>
+            <td class="num">0.457 <span class="sd">± .021</span></td>
+            <td class="num"><b>0.296</b> <span class="sd">± .055</span></td></tr>
+          <tr class="grp"><td></td><td>Velocity</td>
+            <td class="num">0.095 <span class="sd">± .011</span></td>
+            <td class="num">0.233 <span class="sd">± .030</span></td>
+            <td class="num"><b>0.076</b> <span class="sd">± .004</span></td>
+            <td class="num">0.246 <span class="sd">± .009</span></td></tr>
+          <tr><td>Fetch Reach</td><td></td>
+            <td class="num">0.036 <span class="sd">± .003</span></td>
+            <td class="num"><b>0.013</b> <span class="sd">± .013</span></td>
+            <td class="num">0.079 <span class="sd">± .021</span></td>
+            <td class="num">0.035 <span class="sd">± .002</span></td></tr>
+          <tr><td>Fetch Push</td><td></td>
+            <td class="num"><b>0.049</b> <span class="sd">± .014</span></td>
+            <td class="num">0.165 <span class="sd">± .009</span></td>
+            <td class="num">0.171 <span class="sd">± .003</span></td>
+            <td class="num">0.060 <span class="sd">± .007</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ================= MECHANISM + ROBUSTNESS (collapsed) ================= -->
+<section id="robustness">
+  <div class="wrap">
+    <div class="reveal">
+      <span class="section-tag">Mechanism and robustness</span>
+      <h2>Seven more experiments, one per research question</h2>
+    </div>
+
+    <!-- RQ3 -->
+    <details class="acc reveal" data-fig="fig7">
+      <summary><span class="rq">RQ3</span> Is the gain from <em>combining</em> the two signals, rather than either alone?
+        </summary>
+      <div class="body">
+        <p>Three variants in Point Mass Navigation with Obstacles: the full objective, positive-only
+          (standard hindsight imitation), and negative-only. None starts from a buffer of random
+          trajectories, so the comparison isolates how each signal shapes learning from the agent's own
+          rollouts.</p>
+        <div class="grid g2" style="gap:18px;margin-top:16px">
+          <div id="fig7a"></div>
+          <div id="fig7b"></div>
+        </div>
+        <div class="legend" id="fig7legend"></div>
+        <p style="margin-top:16px">The full objective beats both. Positive-only gets stuck, because a
+          failed attempt is always reinterpreted as a success and carries no information about the
+          original goal. Negative-only improves but slowly, lacking the dense positive supervision that
+          relabelling provides.</p>
+        <p>The right panel is the mechanism itself: <span class="mono">L<sub>o</sub> / (L<sub>o</sub> +
+          L₊)</span> starts near <b>0.28</b> and climbs past <b>0.4</b>. Relabelled supervision dominates
+          early, when it is dense and informative; as the policy improves and relabelling has less left
+          to teach, the original-goal term becomes the main source of correction. That is the paper's
+          claim that the method "increasingly benefits from negative feedback as learning progresses",
+          measured directly.</p>
+        <p>Both panels are smoothed with 200-episode chunks and a causal EMA rather than the zero-phase
+          filter used in Figures 5 and 6, which is why the loss-share dip in the first few hundred
+          episodes survives here.</p>
+      </div>
+    </details>
+
+    <!-- RQ4 / RQ5 -->
+    <details class="acc reveal" data-fig="fig9">
+      <summary><span class="rq">RQ4 · RQ5</span> Is <em>this</em> learned distance the right one, and does the threshold matter?
+        </summary>
+      <div class="body">
+        <p>Two alternatives replace <span class="mono">p<sub>φ</sub></span> with the rest of the algorithm
+          held fixed: a similarity learned by <b>SimCLR-TT</b> (temporal neighbours as positives, cosine
+          similarity in latent space) and one from the <b>successor representation</b> (expected
+          discounted future occupancy, normalised by the 0.95 quantile of a batch).</p>
+
+        <div class="panels p2" id="fig9" style="margin-top:18px"></div>
+        <div class="legend" id="fig9legend"></div>
+        <p style="margin-top:16px">Downstream, the ordering is unambiguous in both environments, and the
+          two thresholds are essentially indistinguishable &mdash; final performance is insensitive to
+          <span class="mono">n</span> over 5 to 25. Since <span class="mono">p<sub>φ</sub></span> is
+          learned from trajectories it does depend on the generating policy, but the paper reports that
+          dependence as pronounced only when the neighbourhood is defined very broadly <em>and</em> the
+          policy is taken to an extreme.</p>
+      </div>
+    </details>
+
+    <!-- RQ6 -->
+    <details class="acc reveal" data-fig="fig10">
+      <summary><span class="rq">RQ6</span> Can it recover from a corrupted prior, and re-adapt when the goals change at runtime?
+        </summary>
+      <div class="body">
+        <p>Two ways a deployed agent's assumptions break. First, the policy is corrupted before training
+          by ten gradient steps on a fixed “right” action label, after which goals are sampled uniformly.
+          Second, in the four-room environment goals are drawn from one room for 20 000 episodes and then
+          switched, without notice, to the diagonally opposite room &mdash; keeping both the policy and
+          the replay buffer.</p>
+        <div class="panels p3" id="fig10" style="margin-top:16px"></div>
+        <div class="legend" id="fig10legend"></div>
+        <p style="margin-top:16px">The methods split three ways under bias: GCSL-NF and Contrastive GCRL
+          recover to near-unbiased performance; HER A2C partially recovers with high seed variance; GCSL,
+          W-GCSL and HER DQN never escape. The entropy panel says why &mdash; the failing methods collapse
+          to near-zero action entropy almost immediately, while the two that recover show an early spike,
+          an exploration phase that breaks the bias before entropy decays again.</p>
+        <p>After the goal switch (dashed line) every method degrades, but GCSL-NF attains the lowest
+          distance both before and after and returns to its pre-switch level. The failure mode is the same
+          in both experiments: relabelling certifies behaviour that is wrong for the requested goals as
+          correct for the goals it happens to achieve.</p>
+        <p>The third panel is binned and filtered separately on each side of episode 20 000; binning
+          straight through would smear the step across roughly 6 000 episodes, which is the one thing
+          that panel exists to show.</p>
+      </div>
+    </details>
+
+    <!-- RQ7 -->
+    <details class="acc reveal" data-fig="fig11">
+      <summary><span class="rq">RQ7</span> Does the signal survive sensor and actuation noise?
+        </summary>
+      <div class="body">
+        <p>In 2D LiDAR navigation, applied during both training and testing: <b>sensor noise</b> is
+          independent Gaussian 𝒩(0, σ²) added to each of the 64 readings; <b>actuation noise</b> replaces
+          the executed action with a uniformly random one with probability <span class="mono">p</span>.
+          Both are swept over 2.5%, 5% and 7.5%, against the only two baselines that converge in the clean
+          LiDAR setting.</p>
+        <div id="fig11" style="margin-top:16px"></div>
+        <div class="legend" id="fig11legend"></div>
+        <p style="margin-top:16px">GCSL and W-GCSL improve marginally under mild sensor noise and then
+          fail; GCSL-NF degrades gracefully, with a clear advantage in both position and orientation at
+          mild to moderate noise. Actuation noise is more damaging than sensor noise at matched levels,
+          and at 7.5% improvement is marginal for both noise types.</p>
+        <p>The paper's explanation is quantitative. W-GCSL uses a sparse reward
+          <span class="mono">1[‖s − g‖₂ &lt; τ]</span>; under observation noise identical states are
+          separated by an expected <span class="mono">ℓ₂</span> distance of order
+          <span class="mono">σ√d</span>, which for <span class="mono">τ = 0.1</span>,
+          <span class="mono">d = 64</span> and <span class="mono">σ = 2.5%</span> already exceeds
+          <span class="mono">τ</span> &mdash; reward density collapses from ≈ 0.64 to ≈ 0.03 and the
+          update reduces to noisy behavioural cloning. GCSL has no reward to lose but has its relabelled
+          imitation targets corrupted by the same noise. GCSL-NF avoids both because
+          <span class="mono">p<sub>φ</sub></span> exploits <em>relative</em> neighbourhood structure
+          within each trajectory rather than absolute distances.</p>
+        <p>3 algorithms × 6 settings × 5 seeds. Position is divided by 100 and orientation scaled by
+          π/2, as in the original. These curves run the full 0&ndash;150k: the original two-stage moving
+          average trimmed 1 200 episodes off the end and shifted the x axis by 600 episodes.</p>
+      </div>
+    </details>
+
+    <!-- RQ8 -->
+    <details class="acc reveal" data-fig="fig12">
+      <summary><span class="rq">RQ8</span> Does a safety rule survive after training-time enforcement is switched off?
+        </summary>
+      <div class="body">
+        <p>Point Mass Navigation plus a circular danger zone of radius 0.4 at the origin, with an inner
+          <b>core</b> of radius 0.2. Starts and goals are outside the zone, but feasible paths often cross
+          it. For GCSL-NF the constraint is folded into the <em>learning signal</em>: the cross-entropy
+          target of an unsafe action is clamped to zero in both branches, overriding
+          <span class="mono">p<sub>φ</sub></span>. This is combined with two action-space interventions
+          &mdash; <em>re-select</em> (execute the best safe alternative; post-posed shielding) and
+          <em>stay</em> (block the action, agent stays put; invalid-action masking) &mdash; giving five
+          settings. <b>All interventions are disabled at evaluation</b>, so what is measured is whether
+          the policy itself learned the rule.</p>
+
+        <div class="grid g2" id="fig12a" style="margin-top:18px;gap:18px;
+             grid-template-columns:1.45fr 1fr"></div>
+        <div class="legend" id="fig12aLegend" style="margin-top:10px"></div>
+        <div class="legend" id="fig12aShapes" style="margin-top:2px"></div>
+        <p style="margin-top:16px">Lower-left is ideal. At full range the interesting cluster is a few
+          pixels wide, so the right panel zooms into it. Every GCSL-NF setting reaches the goal to within
+          <b>0.06&ndash;0.15</b> while entering the core on at most <b>0.19%</b> of trajectories; setting 4
+          (re-select + neg) records <b>0.00%</b> at a distance of <b>0.061</b>. GCSL and W-GCSL match that
+          accuracy under <em>re-select</em>, but under <em>stay</em> &mdash; the same goal accuracy, no
+          shield at test time &mdash; they enter the core on <b>7.5%</b> and <b>5.5%</b> of trajectories,
+          off the top of the zoom. The HER baselines trade off inconsistently, either approaching the goal
+          while still entering the hazard or avoiding the core only because they stay far away from
+          everything; Contrastive GCRL, at a final distance of <b>1.39</b>, solves neither.</p>
+
+        <div class="grid g2" id="fig12b" style="gap:18px;margin-top:22px"></div>
+        <div class="legend" id="fig12bLegend"></div>
+        <p style="margin-top:16px">The CDFs show <em>how close</em> the agent gets, not just whether it
+          crossed the line: the fraction of trajectories (left) and of individual steps (right) coming
+          within radius <span class="mono">x</span> of the danger centre.</p>
+
+        <div class="panels p6" id="fig12c" style="margin-top:22px"></div>
+        <div id="fig12cBar" style="max-width:300px;margin-top:6px"></div>
+        <p style="margin-top:14px">The visit heatmaps make the same point spatially: a well-behaved
+          setting shows a hole inside the dashed core circle. Solid circle is the danger boundary
+          (r = 0.4), dashed is the core (r = 0.2).</p>
+
+
+      </div>
+    </details>
+
+    <!-- RQ9 -->
+    <details class="acc reveal" data-fig="fig13">
+      <summary><span class="rq">RQ9</span> Can it obey a rule that depends on trajectory history?
+        </summary>
+      <div class="body">
+        <p><span class="mono">PointmassCorner</span>: the domain [−1, 1]² is a 4 × 4 grid, starts and goals
+          come from the two opposite corner cells BL and TR, and a waypoint rule makes the direct route
+          inadmissible &mdash; BL→TR must visit the top-left cell, TR→BL the bottom-right. Unlike the
+          danger zone, this cannot be checked locally: moving toward the goal is admissible <em>after</em>
+          the waypoint has been visited and inadmissible before.</p>
+        <p>GCSL-NF encodes it through the contrastive objective rather than a reward.
+          <b>Positive-relabel filtering</b> discards a relabelled sub-segment that skips the required
+          waypoint, so inadmissible shortcuts are never reinforced; <b>whole-trajectory negative
+          clamping</b> then clamps a rule-violating trajectory's target to zero. The HER baselines cannot
+          express the rule per step, so they receive it as a trajectory-level delayed penalty subtracted
+          from every transition of a violating trajectory, in both original and relabelled copies.</p>
+        <div class="grid g2" style="gap:20px;margin-top:18px;align-items:start">
+          <div>
+            <div id="fig13"></div>
+            <div class="legend" id="fig13legend"></div>
+          </div>
+          <figure class="fig" style="padding:12px">
+            <img src="fig13b.png" alt="Representative trajectories: GCSL-NF makes clean L-shaped detours through the required waypoint corner, while HER DQN wanders and rarely satisfies the constraint.">
+            <figcaption><b>Figure 13b &middot; Representative trajectories.</b> Left GCSL-NF, right HER DQN.
+              Green is BL→TR via the top-left waypoint, orange TR→BL via the bottom-right; squares are
+              starts, stars are goals.</figcaption>
+          </figure>
+        </div>
+        <p style="margin-top:16px">Over 2 000 cross-corner trips per seed, GCSL-NF reaches the goal on
+          <b>88%</b> of trips and obeys the waypoint rule on <b>88%</b>. HER DQN reaches on
+          <b>7%</b>; HER A2C never reaches the goal at all under this budget. Both HER baselines record
+          an obeyed rate near <b>10% with a standard deviation of about 20</b> &mdash; that is, one seed
+          out of five occasionally satisfies the rule and the rest do not, which is what a failed
+          credit-assignment problem looks like rather than partial success.</p>
+        <p>Bars are means over 5 seeds of <span class="mono">reached/n</span> and
+          <span class="mono">obeyed/n</span>; error bars are standard deviations across seeds.</p>
+      </div>
+    </details>
+  </div>
+</section>
+
+<!-- ================= POSITION ================= -->
+<section id="position">
+  <div class="wrap">
+    <div class="reveal">
+      <span class="section-tag">Where it sits</span>
+      <h2>What GCSL-NF uses that the neighbours do not</h2>
+      <p class="lead">The distinguishing move is not contrastive learning &mdash; Contrastive GCRL uses that
+        too. It is that the contrast is <em>directed</em>: the achieved outcome is compared against the
+        specific goal the agent intended and missed, and that comparison corrects the policy.</p>
+    </div>
+
+    <div class="tblwrap reveal" style="margin-top:24px">
+      <table class="tbl">
+        <caption style="text-align:left;color:var(--muted);font-size:13px;padding-bottom:10px;font-style:italic">
+          Table 4 &middot; algorithms for goal-conditioned problems. Transcribed from Table 2 of the
+          manuscript.</caption>
+        <thead><tr>
+          <th></th><th class="num">Vanilla RL</th><th class="num">RL with HER</th><th class="num">GCSL</th>
+          <th class="num">Contrastive GCRL</th><th class="num">GCSL-NF</th>
+        </tr></thead>
+        <tbody>
+          <tr><td>Relabelled goal</td><td class="tick-n">&mdash;</td><td class="tick-y">&#10003;</td>
+            <td class="tick-y">&#10003;</td><td class="tick-y">&#10003;</td><td class="tick-y">&#10003;</td></tr>
+          <tr><td>Original goal</td><td class="tick-y">&#10003;</td><td class="tick-y">&#10003;</td>
+            <td class="tick-n">&mdash;</td><td class="tick-n">&mdash;</td><td class="tick-y">&#10003;</td></tr>
+          <tr><td>Contrastive goal</td><td class="tick-n">&mdash;</td><td class="tick-n">&mdash;</td>
+            <td class="tick-n">&mdash;</td><td class="tick-y">&#10003;</td><td class="tick-y">&#10003;</td></tr>
+          <tr><td>Contrastive action</td><td class="tick-n">&mdash;</td><td class="tick-y">&#10003;</td>
+            <td class="tick-y">&#10003;</td><td class="tick-n">&mdash;</td><td class="tick-y">&#10003;</td></tr>
+          <tr><td>External reward function</td><td class="tick-y">&#10003;</td><td class="tick-y">&#10003;</td>
+            <td class="tick-n">&mdash;</td><td class="tick-n">&mdash;</td><td class="tick-n">&mdash;</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="grid g2 reveal" style="margin-top:28px;gap:26px;align-items:start">
+      <div class="card">
+        <p class="kicker">Self-adaptive systems &middot; §5.2</p>
+        <h3 style="font-size:19px">Two modes of use</h3>
+        <p><b>Pretraining.</b> A single goal-conditioned policy is trained in simulation at design time.
+          Because no objective is hard-coded, the managing system can invoke it at runtime with a wide
+          range of observational goals, while goal <em>selection</em> stays with the managing system.</p>
+        <p><b>Online.</b> The learning loop is embedded in the managing system's own feedback loop: the
+          agent keeps generating trajectories, relabels them, and refines the policy from operational
+          experience. The algorithm is identical in both; what changes is whether goals and environment
+          stay stationary.</p>
+      </div>
+      <div class="card">
+        <p class="kicker">Limitations &middot; §5.3</p>
+        <h3 style="font-size:19px">What this does not claim</h3>
+        <p>No formal safety guarantees, no certified satisfaction of temporal-logic specifications, no
+          sim-to-real validation. The robustness results are empirical properties of a learned policy,
+          not verified system-level claims &mdash; and every experiment is a controlled simulation in a
+          low-dimensional navigation or simplified control task.</p>
+        <p>The negative signal also does not identify <em>why</em> a trajectory failed: bad actions,
+          disturbance, partial observability, actuator faults and infeasible goals all produce the same
+          low <span class="mono">p<sub>φ</sub></span>. Separating them would need uncertainty estimation
+          or causal attribution. Goal sampling is uniform and does not adapt to the agent's competence.</p>
+      </div>
+    </div>
+
+    <div class="callout reveal" style="margin-top:26px;font-size:16px">
+      <b>The layering argument.</b> Safe-RL machinery acts at the level of action selection or policy
+      optimisation under externally specified constraints; GCSL-NF acts at the level of the learning
+      signal. A GCSL-NF learner can sit beneath a runtime shield that guarantees no unsafe action is ever
+      executed &mdash; the shield supplying the certifiable envelope, GCSL-NF supplying goal-reaching
+      competence without per-goal reward engineering.
+    </div>
+  </div>
+</section>
+
+<!-- ================= CITE ================= -->
+<section id="cite">
+  <div class="wrap">
+    <div class="reveal">
+      <span class="section-tag">Citation</span>
+      <h2>Cite this work</h2>
+      <div class="bib-head" style="margin-top:22px">
+        <button class="btn" id="copyBib">Copy BibTeX</button>
+        <a class="btn btn-primary" href="https://github.com/zeqiang-zhang/gcsl_nf" target="_blank" rel="noopener">Open the code</a>
+        <span class="muted mono" style="font-size:12.5px" id="copyMsg"></span>
+      </div>
+<pre class="bib" id="bibtex">@misc{zhang2025autonomouslearningsuccessfailure,
+  <span class="k">title</span>  = {Autonomous Learning From Success and Failure: Goal-Conditioned Supervised Learning with Negative Feedback},
+  <span class="k">author</span> = {Zeqiang Zhang and Fabian Wurzberger and Gerrit Schmid and Sebastian Gottwald and Daniel A. Braun},
+  <span class="k">year</span>   = {2025},
+  <span class="k">eprint</span> = {2509.03206},
+  <span class="k">archivePrefix</span> = {arXiv},
+  <span class="k">url</span>    = {https://arxiv.org/abs/2509.03206}
+}</pre>
+
+    </div>
+  </div>
+</section>
+
+
+
+<script src="figure_data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

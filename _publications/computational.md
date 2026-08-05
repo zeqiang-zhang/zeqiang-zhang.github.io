@@ -2,10 +2,11 @@
 title: "From Individual Learning to Market Equilibrium: Correcting Structural and Parametric Biases in RL Simulations of Economic Models"
 collection: publications
 category: workingpapers
-permalink: /publication/gcsl_nf
+permalink: /publication/computational
 date: 2025-11-03
 venue: 'Arxiv'
 paperurl: 'https://arxiv.org/abs/2507.18229'
+demourl: '/demos/computational/'
 citation: 'Chen, Ruxin; Zhang, Zeqiang. (2025). &quot;From Individual Learning to Market Equilibrium: Correcting Structural and Parametric Biases in RL Simulations of Economic Models.&quot; <i>Arxiv</i>.'
 ---
 

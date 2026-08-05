@@ -6,6 +6,7 @@ permalink: /publication/entropy
 date: 2025-11-21
 venue: 'Entropy'
 paperurl: 'https://www.mdpi.com/1099-4300/27/12/1182'
+demourl: '/demos/entropy/'
 citation: 'Zhang, Zeqiang; Chen, Ruxin. (2025). &quot;A Cognitive Perspective on Information Frictions in Labor Markets&quot; <i>Entropy</i>. 27(12).'
 ---
 ![Fig.](/images/entropy.png)

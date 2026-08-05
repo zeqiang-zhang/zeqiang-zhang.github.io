@@ -1,0 +1,900 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A Cognitive Perspective on Information Frictions in Labor Markets</title>
+<meta name="description" content="Project page for 'A Cognitive Perspective on Information Frictions in Labor Markets' (Entropy, 2025). Job seekers split effort between applying and learning under the Free Energy Principle; aggregate matching efficiency becomes a function of belief misalignment and belief entropy.">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div id="progress"></div>
+<div id="tooltip" class="tooltip"></div>
+
+<!-- ================= NAV ================= -->
+<nav class="nav">
+  <div class="wrap">
+    <a href="#top" class="brand"><span class="logo"></span> Cognitive frictions</a>
+    <button class="nav-burger" id="burger" aria-label="Menu">☰</button>
+    <div class="nav-links" id="navlinks">
+      <a href="#puzzle">Puzzle</a>
+      <a href="#fep">Free energy</a>
+      <a href="#micro">Worker</a>
+      <a href="#macro">Market</a>
+      <a href="#beveridge">Beveridge</a>
+      <a href="#policy">Policy</a>
+      <a href="#discussion">Discussion</a>
+      <a href="#cite">Cite</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ================= HERO ================= -->
+<header class="hero" id="top">
+  <div class="wrap">
+    <div class="hero-inner">
+      <p class="venue">Entropy · MDPI · 2025</p>
+      <h1 class="paper-title">A Cognitive Perspective on Information Frictions in Labor Markets</h1>
+
+      <div class="authors">
+        <div class="au">
+          <div class="n">Zeqiang Zhang</div>
+          <div class="aff">Institute of Neural Information Processing<br>Ulm University, Germany</div>
+        </div>
+        <div class="au">
+          <div class="n">Ruxin Chen <span class="tag">corresponding</span></div>
+          <div class="aff">Department of Economics<br>Nagoya University, Japan</div>
+        </div>
+      </div>
+      <p class="muted" style="font-size:13px;margin:-8px 0 24px">These authors contributed equally to this work.</p>
+
+      <div class="abstract">
+        <span class="lbl">Abstract</span>
+        <p style="margin-top:0">During the Great Recession, labor markets often exhibit a slow unemployment recovery
+        and persistent outward shifts in the Beveridge curve, which suggests a decline in the efficiency of the
+        job-matching process. While it is often explained by worker search intensity, we argue that the
+        <b>direction</b> of search behavior also matters by proposing a stylized theoretical model based on the
+        <b>Free Energy Principle</b>. Through modeling agents who actively divide their effort between applying for
+        jobs and learning about the market's new state, our framework shows that agents endogenously shift effort
+        from applications to learning when their uncertainty is high. Building on this micro-foundation, we design a
+        macroeconomic model where matching efficiency is no longer an external parameter but is instead governed by
+        two cognitive factors: the share of unemployed workers with misaligned beliefs and the average learning
+        effort of the informed. Simulation results show that a structural shock will divert effort to learning and
+        depress matching by creating widespread uncertainty, and the subsequent slow recovery is governed by the
+        realignment of collective beliefs.</p>
+      </div>
+
+      <div class="chips" style="justify-content:center;margin-bottom:26px">
+        <span class="chip">Free Energy Principle</span>
+        <span class="chip">active inference</span>
+        <span class="chip">information frictions</span>
+        <span class="chip">labor market matching</span>
+        <span class="chip">Shannon entropy</span>
+        <span class="chip">search-and-matching</span>
+      </div>
+
+      <nav class="hero-links">
+        <a href="https://www.mdpi.com/1099-4300/27/12/1182"><span class="ic">PDF</span> Paper</a>
+        <!-- <a href="#micro"><span class="ic">SIM</span> Worker simulator</a>
+        <a href="#macro"><span class="ic">SIM</span> Market simulator</a> -->
+        <a href="#cite"><span class="ic">BIB</span> BibTeX</a>
+      </nav>
+    </div>
+  </div>
+
+  <!-- <div class="wrap">
+    <div class="highlights">
+      <div class="h"><b>2</b><span>Cognitive variables that set matching efficiency</span></div>
+      <div class="h"><b>0.93</b><span>Correlation between uncertainty and learning effort</span></div>
+      <div class="h"><b>1</b><span>Unit of effort, split between applying and learning</span></div>
+      <div class="h"><b>0</b><span>Free parameters for the cost of information</span></div>
+    </div>
+  </div> -->
+</header>
+
+<!-- ================= PUZZLE ================= -->
+<section id="puzzle">
+  <div class="wrap">
+    <div class="reveal">
+      <span class="section-tag">The puzzle</span>
+      <h2>Search effort explains how hard people look. It does not explain <em>where</em> they look.</h2>
+      <p class="lead">Severe downturns push the Beveridge curve outward and leave it there: for any given number of
+        vacancies, unemployment stays higher than it used to be. Something about the matching process itself has
+        become less efficient. In the canonical Diamond&ndash;Mortensen&ndash;Pissarides framework that efficiency
+        is a parameter &mdash; exogenous, or hit by an ad hoc shock. This paper asks what it is made of.</p>
+    </div>
+
+    <div class="grid g3 reveal" style="margin-top:34px">
+      <div class="card" style="border-top:3px solid var(--muted)">
+        <p class="kicker">The standard measure</p>
+        <h3>Intensity</h3>
+        <p>Time spent searching, applications sent. A natural proxy, and the one the literature has traditionally
+          focused on &mdash; but individual effort can be high while aggregate matching still falls.</p>
+      </div>
+      <div class="card" style="border-top:3px solid var(--prag)">
+        <p class="kicker">What the evidence points to</p>
+        <h3>Effectiveness</h3>
+        <p>Shifts in the composition of the unemployed pool can mechanically reduce the aggregate matching rate.
+          Mismatch unemployment &mdash; where seekers' attributes do not align with what jobs demand &mdash; means
+          the problem is not a lack of effort but a <em>misdirection</em> of it.</p>
+      </div>
+      <div class="card" style="border-top:3px solid var(--accent)">
+        <p class="kicker">This paper</p>
+        <h3>Direction</h3>
+        <p>Misdirection follows from Knightian uncertainty. After a structural shock, agents do not face known
+          probabilities over known states &mdash; their model of the economy is simply wrong, and they must first
+          find out what the world now is.</p>
+      </div>
+    </div>
+
+    <div class="reveal" style="margin-top:34px">
+      <div class="callout" style="font-size:16px">
+        <b>The three questions.</b> (1) How can a job seeker deal with the trade-off between job applications and
+        information gathering? (2) How do these micro-level cognitive processes aggregate to shape the
+        macroeconomic matching function? (3) How does this endogenous cognitive channel influence the labor
+        market's dynamic response to structural shocks?
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= FEP ================= -->
+<section id="fep">
+  <div class="wrap">
+    <div class="reveal">
+      <span class="section-tag">Theoretical framework</span>
+      <h2>One objective for both believing and acting</h2>
+      <p class="lead">The Free Energy Principle supplies a single quantity that governs belief updating <em>and</em>
+        action selection. Its appeal here is parsimony: the drive to gather information is not assumed, priced, or
+        given a capacity constraint. It falls out of the objective.</p>
+    </div>
+
+    <div class="grid g2 reveal" style="margin-top:30px;gap:26px">
+      <div class="card">
+        <p class="kicker">Perception · minimise <i>F</i></p>
+        <h3>Beliefs are chosen to bound surprise</h3>
+        <p>An agent cannot minimise surprise <span class="mono">&minus;log&nbsp;p(s)</span> directly, because that
+          requires the marginal likelihood. It instead minimises variational free energy, a tractable upper bound.
+          Rearranged, that bound is a familiar trade-off.</p>
+        <div class="eq inline">
+          <span class="eq-num">(4)</span>
+          <math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
+            <mi>F</mi><mo>=</mo>
+            <msub><mi>D</mi><mrow><mi>K</mi><mi>L</mi></mrow></msub>
+            <mo>[</mo><mi>q</mi><mo>(</mo><mi>&#952;</mi><mo>)</mo><mo>||</mo>
+            <mi>p</mi><mo>(</mo><mi>&#952;</mi><mo>)</mo><mo>]</mo>
+            <mo>&#8722;</mo>
+            <msub><mi>&#120124;</mi><mrow><mi>q</mi><mo>(</mo><mi>&#952;</mi><mo>)</mo></mrow></msub>
+            <mo>[</mo><mi>log</mi><mspace width="2px"/><mi>p</mi>
+            <mo>(</mo><mi>s</mi><mo>|</mo><mi>&#952;</mi><mo>)</mo><mo>]</mo>
+          </math>
+        </div>
+        <div class="decomp">
+          <div class="d" style="--c:var(--entropy)"><div class="t">Complexity</div>
+            <div class="s">How far the posterior strays from the prior. An Occam's razor that keeps the model from
+              chasing noise.</div></div>
+          <div class="d" style="--c:var(--prag)"><div class="t">Accuracy</div>
+            <div class="s">How well the beliefs explain what was actually observed.</div></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <p class="kicker">Action · minimise <i>G</i></p>
+        <h3>Actions are chosen to bound <em>future</em> surprise</h3>
+        <p>Under active inference the agent selects the action whose anticipated outcomes carry the least expected
+          free energy. That quantity splits into two motives an economist will recognise.</p>
+        <div class="eq inline">
+          <span class="eq-num">(6)</span>
+          <math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
+            <mi>G</mi><mo>(</mo><msub><mi>a</mi><mi>t</mi></msub><mo>)</mo><mo>=</mo>
+            <munder><mo movablelimits="false">&#120124;</mo><mrow><mi>q</mi><mo>(</mo><mi>o</mi><mo>)</mo></mrow></munder>
+            <mo>[</mo><mo>&#8722;</mo><mi>log</mi><mspace width="2px"/><mi>p</mi><mo>(</mo><mi>o</mi><mo>)</mo><mo>]</mo>
+            <mspace width="6px"/><mo>+</mo><mspace width="6px"/>
+            <munder><mo movablelimits="false">&#120124;</mo><mrow><mi>q</mi><mo>(</mo><mi>o</mi><mo>,</mo><mi>s</mi><mo>)</mo></mrow></munder>
+            <mo>[</mo><mi>log</mi><mspace width="2px"/><mi>q</mi><mo>(</mo><mi>s</mi><mo>|</mo><mi>o</mi><mo>)</mo>
+            <mo>&#8722;</mo><mi>log</mi><mspace width="2px"/><mi>q</mi><mo>(</mo><mi>s</mi><mo>|</mo><mi>a</mi><mo>)</mo><mo>]</mo>
+          </math>
+        </div>
+        <div class="decomp">
+          <div class="d" style="--c:var(--prag)"><div class="t">Pragmatic value</div>
+            <div class="s">The divergence between expected outcomes and the agent's preferences. Formally analogous
+              to maximising expected utility &mdash; here, getting a job.</div></div>
+          <div class="d" style="--c:var(--alpha)"><div class="t">Epistemic value</div>
+            <div class="s">The expected reduction in uncertainty about the hidden state. This term rewards
+              exploration and has no counterpart in expected utility theory.</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="reveal" style="margin-top:26px">
+      <div class="callout" style="font-size:15.5px">
+        <b>Why not rational inattention?</b> RI posits an exogenous cost function or a fixed processing capacity, so
+        information is valuable only instrumentally. Active inference imposes no explicit information cost: the pull
+        toward information emerges from the imperative to minimise prediction error, giving information
+        <em>intrinsic</em> value. The paper's framework is about the epistemic value of information rather than its
+        price.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= MICRO ================= -->
+<section id="micro">
+  <div class="wrap">
+    <div class="reveal">
+      <span class="section-tag">Section 3 · the worker</span>
+      <h2>One unit of effort, two things to spend it on</h2>
+      <p class="lead">A worker faces a market in one of two latent states: an <b>old economy</b> where traditional
+        skills are in demand, or a <b>new economy</b> that wants a different skill set. She cannot observe which.
+        Each period she splits a unit of effort: a fraction <i>&alpha;</i> goes to finding out which world she is in,
+        and <span class="mono">1&minus;&alpha;</span> goes to applying for jobs. Applications directed at the wrong
+        world mostly fail.</p>
+    </div>
+
+    <div class="grid g2 reveal" style="margin-top:28px;gap:26px">
+      <div class="card" style="border-left:3px solid var(--alpha)">
+        <p class="kicker" style="color:var(--alpha)">Epistemic · fraction &alpha;</p>
+        <h3>Learning</h3>
+        <p>Reading industry reports, attending networking events, researching where skill demand is heading. Pays
+          nothing today; it changes which direction tomorrow's applications point.</p>
+      </div>
+      <div class="card" style="border-left:3px solid var(--prag)">
+        <p class="kicker" style="color:var(--prag)">Pragmatic · fraction 1&minus;&alpha;</p>
+        <h3>Applying</h3>
+        <p>Submitting applications. Success depends on <em>both</em> the intensity of the effort and whether the
+          belief steering it happens to be right.</p>
+      </div>
+    </div>
+
+    <div class="reveal" style="margin-top:24px">
+      <div class="callout" style="font-size:16px">
+        <b>The prediction.</b> When the belief distribution has high entropy, the epistemic value of information is
+        substantial and the agent raises <i>&alpha;</i>. When entropy is low the epistemic drive fades and effort
+        flows back to applications. Nothing in the agent says "learn when confused" &mdash; it is what minimising
+        expected free energy implies.
+      </div>
+    </div>
+
+    <!-- ---- live POMDP ---- -->
+    <div class="lab reveal" style="margin-top:30px">
+      <div class="lab-head">
+        <span class="k">Interactive</span>
+        <h3>The active-inference job seeker</h3>
+        <div class="seg right" id="microSpeed">
+          <button data-sp="1" class="on">Animate</button>
+          <button data-sp="0">Instant</button>
+        </div>
+      </div>
+      <p style="color:var(--ink-2);max-width:82ch;margin-top:0">A live port of the authors' own simulation code:
+        two hidden states, three effort levels <span class="mono">{0.1, 0.5, 0.9}</span>, seven observations, a
+        partial Bayesian belief update, and a softmax policy over expected free energy. The market switches state
+        at the shock and never tells the agent. <b>The published figures average 100 independent runs</b> &mdash;
+        switch to a single run to see what one worker actually experiences.</p>
+
+      <div class="seg" id="microMode" style="margin:14px 0 4px">
+        <button data-mode="mean" class="on">100-run mean</button>
+        <button data-mode="single">Single run</button>
+      </div>
+
+      <div class="sim-grid">
+        <div>
+          <div class="control">
+            <label>Structural shock at step <b id="mShockVal">30</b></label>
+            <input type="range" id="mShock" min="10" max="45" step="1" value="30">
+            <p class="hint">The true state flips from old to new economy. Nothing announces it.</p>
+          </div>
+          <div class="control">
+            <label>Belief inertia <b id="mLrVal">0.40</b></label>
+            <input type="range" id="mLr" min="0.05" max="1.00" step="0.01" value="0.40">
+            <p class="hint">The notebook's <span class="mono">learning_rate</span>: how far the posterior moves
+              toward the evidence each step. At 1 the agent is a full Bayesian and flips almost immediately; the
+              paper uses 0.4.</p>
+          </div>
+          <div class="control">
+            <label>Policy precision &beta; <b id="mBetaVal">10</b></label>
+            <input type="range" id="mBeta" min="1" max="25" step="0.5" value="10">
+            <p class="hint">How sharply the agent commits to the lowest-<i>G</i> action. Low &beta; keeps effort
+              mixed across all three levels.</p>
+          </div>
+          <div class="control">
+            <label>Perceived volatility &epsilon; <b id="mEpsVal">0.010</b></label>
+            <input type="range" id="mEps" min="0.001" max="0.05" step="0.001" value="0.010">
+            <p class="hint">Off-diagonal of the transition matrix <b>B</b> &mdash; the agent's belief that the
+              market can switch on its own. Higher &epsilon; erodes confidence even when nothing happens.</p>
+          </div>
+
+          <div class="readout" style="margin-top:18px">
+            <div class="r"><div class="v" id="mAlpha" style="color:var(--alpha)">—</div>
+              <div class="l">effort on learning, &alpha;</div></div>
+            <div class="r"><div class="v" id="mEnt" style="color:var(--entropy)">—</div>
+              <div class="l">belief entropy, nats</div></div>
+          </div>
+          <div class="readout" style="margin-top:14px">
+            <div class="r"><div class="v" id="mBel" style="color:var(--belief);font-size:20px">—</div>
+              <div class="l">belief in the old economy</div></div>
+            <div class="r"><div class="v" id="mCorr" style="font-size:20px">—</div>
+              <div class="l">corr(&alpha;, H) on the plotted curve</div></div>
+          </div>
+          <div class="readout" style="margin-top:14px">
+            <div class="r"><div class="v" id="mCorrFlat" style="font-size:20px;color:var(--muted)">—</div>
+              <div class="l">corr on the pooled 100&times;60 sample</div></div>
+          </div>
+
+          <div class="sim-foot" style="border:0;padding-top:12px">
+            <button class="btn btn-primary" id="mRun">New run</button>
+            <span class="muted mono" style="font-size:12.5px">step <b id="mT">0</b>/60</span>
+          </div>
+        </div>
+
+        <div class="sim-panels" id="microPanels"></div>
+      </div>
+
+      <div class="legend" style="margin-top:16px;padding-top:14px;border-top:1px solid var(--line)">
+        <div class="li"><span class="sw" style="background:var(--alpha)"></span>&alpha; · effort on learning</div>
+        <div class="li"><span class="sw" style="background:var(--belief)"></span>belief in the old economy</div>
+        <div class="li"><span class="sw" style="background:var(--entropy)"></span>belief entropy</div>
+        <div class="li"><span class="dash" style="color:var(--ink-2)"></span>structural shock</div>
+      </div>
+    </div>
+
+    <details class="acc reveal">
+      <summary>How this simulator relates to the paper</summary>
+      <div class="body">
+        <p><b>It is the authors' code.</b> This is a port of the simulation notebook, not a reconstruction from the
+          appendix prose. The likelihood matrices, the preference vector
+          <span class="mono">C = log[0.1, 0.8, 7, 0.8, 7, 1, 1]</span>, the transition matrix, the partial belief
+          update, the sampled discrete action and the softmax over expected free energy all follow it line for
+          line. At the published settings it reproduces the figures closely: belief 0.97 &rarr; 0.87 &rarr; 0.14,
+          <i>&alpha;</i> spanning roughly 0.12&ndash;0.72, entropy 0.10&ndash;0.68 nats.</p>
+
+        <p><b>Two statistics, not one.</b> The paper reports a correlation of <b>0.928</b> between effort and
+          uncertainty. That is computed on the <em>averaged</em> curves &mdash; 60 points after pooling 100 runs.
+          The correlation across the raw <span class="mono">100&times;60</span> sample is only <b>0.63</b>, and the
+          notebook prints exactly that. Both are shown above. The gap is not a discrepancy; averaging removes the
+          per-run sampling noise, and it is worth knowing which of the two a reader is looking at.</p>
+
+        <p><b>Why the single run looks so different.</b> The policy samples a discrete action, so in one run
+          <i>&alpha;</i> only ever takes the values 0.1, 0.5 or 0.9 &mdash; the smooth curve in Figure 1 is an
+          artefact of averaging, not something any individual worker does. Switching modes above makes this
+          visible: the scatter panel collapses from a cloud to three vertical stripes.</p>
+
+        <p><b>Belief inertia is doing the work.</b> The agent is not a full Bayesian. Each step it moves only 40%
+          of the way from its prediction toward the evidence-based posterior. That single parameter, rather than
+          any noisiness in the observations, is what makes belief revision take about twenty steps instead of
+          three. Push the slider to 1.0 and the agent flips almost immediately.</p>
+
+        <p><b>Three things in the code worth knowing about.</b> The belief update uses the <em>previous</em> step's
+          <span class="mono">alpha</span> and applied direction while the observation was generated with the
+          current ones &mdash; a one-step offset. The update also switches likelihood hard at
+          <span class="mono">alpha &gt; 0.5</span>, whereas action selection blends the two channels continuously.
+          And the environment is slightly harsher than the agent's own model of it: a mismatched application always
+          returns "no offer", while the agent believes it might still yield a low offer 10% of the time. All three
+          are reproduced here as-is, since they are what generated the published figures.</p>
+
+        <p style="margin-bottom:0"><b>One thing the code settles.</b> Equation (6) as printed adds the epistemic
+          term to <i>G</i>, which &mdash; since <i>G</i> is minimised &mdash; would make the agent
+          <em>avoid</em> information. The notebook computes
+          <span class="mono">efe = &minus;(pragmatic_value + info_gain)</span>, rewarding it. The sign in the
+          manuscript appears to be a slip; the implementation is the one Section 2.2 describes in words.</p>
+      </div>
+    </details>
+
+    <!-- ---- figures 1-3 ---- -->
+    <div class="reveal" style="margin-top:30px">
+      <div class="callout" style="font-size:14.5px;margin-bottom:20px">
+        <b>About these three figures.</b> They are the paper's Figures 1&ndash;3, but redrawn. The data comes from
+        running the authors' simulation notebook unchanged &mdash; 100 runs, 60 steps, shock at 30,
+        <span class="mono">learning_rate = 0.4</span>, <span class="mono">&beta; = 10</span>, numpy seed 0 &mdash;
+        and keeping the same averaged series the published figures plot. Only the styling differs, so that the
+        colours match the rest of this page. The originals are in the manuscript; the numbers below land within a
+        few percent of them, the residual being the random seed.
+      </div>
+    </div>
+
+    <div class="grid reveal" style="margin-top:4px;gap:22px">
+      <figure class="fig">
+        <svg id="fig1Chart" class="chart" viewBox="0 0 900 330" role="img"
+             aria-label="Belief in the old economy and effort allocated to information gathering over 60 steps, with a structural shock at step 30."></svg>
+        <div class="legend" style="margin-top:6px">
+          <div class="li"><span class="sw" style="background:var(--alpha)"></span>α · effort on learning (left axis)</div>
+          <div class="li"><span class="sw" style="background:var(--belief)"></span>belief in the old economy (right axis)</div>
+        </div>
+        <figcaption><b>Figure 1 · Dynamic response of beliefs and search effort to a structural shock.</b> The
+          agent's belief in the initial market state (State A) and the proportion of effort allocated to information
+          gathering (<i>&alpha;</i>). A permanent structural shock to State B occurs at
+          <span class="mono">t = 30</span>. Before it, confidence is high and effort goes almost entirely into
+          applications; after it, <i>&alpha;</i> jumps within two steps and only recedes once beliefs have settled
+          on the new world. <span class="muted">Redrawn from the authors' simulation output.</span></figcaption>
+      </figure>
+
+      <figure class="fig">
+        <svg id="fig2Chart" class="chart" viewBox="0 0 900 330" role="img"
+             aria-label="Shannon entropy of the agent's belief distribution over time, alongside search effort."></svg>
+        <div class="legend" style="margin-top:6px">
+          <div class="li"><span class="sw" style="background:var(--alpha)"></span>α · effort on learning (left axis)</div>
+          <div class="li"><span class="sw" style="background:var(--entropy)"></span>H · belief entropy, nats (right axis)</div>
+        </div>
+        <figcaption><b>Figure 2 · The evolution of subjective uncertainty following a structural shock.</b> The
+          Shannon entropy of the agent's belief distribution over time. Entropy is a formal measure of subjective
+          uncertainty, and it peaks during the period of belief revision &mdash; note how tightly the two curves
+          track each other. <span class="muted">Redrawn from the authors' simulation output.</span></figcaption>
+      </figure>
+
+      <figure class="fig">
+        <svg id="fig3Chart" class="chart" viewBox="0 0 620 380" role="img"
+             aria-label="Scatter of belief entropy against search effort with a fitted line, showing a strong positive relationship."
+             style="max-width:640px;margin:0 auto"></svg>
+        <div class="legend" style="margin-top:6px;justify-content:center">
+          <div class="li"><span class="dot" style="background:var(--alpha)"></span>before the shock</div>
+          <div class="li"><span class="dot" style="background:var(--entropy)"></span>after the shock</div>
+          <div class="li"><span class="dash" style="color:var(--ink-2)"></span>least-squares fit</div>
+        </div>
+        <figcaption><b>Figure 3 · Information gathering effort as a function of subjective uncertainty.</b> The
+          agent's information gathering intensity (<i>&alpha;<sub>t</sub></i>) against the entropy of its beliefs
+          (<i>H<sub>t</sub></i>). The relationship is strong, positive and approximately linear &mdash; effort
+          allocated to learning is proportional to uncertainty. <span class="muted">Both axes are means over 100
+          runs, so the correlation shown is that of the 60 averaged points; the paper reports 0.928 for its own
+          seed. Across the pooled 100&times;60 sample it is 0.63, and the simulator above reports both.</span></figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- ================= MACRO ================= -->
+<section id="macro">
+  <div class="wrap">
+    <div class="reveal">
+      <span class="section-tag">Section 4 · the market</span>
+      <h2>Matching efficiency, taken apart</h2>
+      <p class="lead">Aggregate a continuum of these agents and the efficiency parameter stops being a parameter.
+        Partition the unemployed by whether their beliefs match the true state, assume that misdirected applications
+        essentially never land, and the job-finding rate factorises into a familiar tightness term and two cognitive
+        ones.</p>
+    </div>
+
+    <div class="reveal" style="margin-top:26px">
+      <div class="eq">
+        <span class="eq-num">(13)</span>
+        <math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
+          <msub><mi>f</mi><mi>t</mi></msub><mo>=</mo>
+          <mo>(</mo><mn>1</mn><mo>&#8722;</mo><msub><mi>&#955;</mi><mi>t</mi></msub><mo>)</mo>
+          <mo>&#8901;</mo>
+          <mo>(</mo><mn>1</mn><mo>&#8722;</mo>
+          <msubsup><mover><mi>&#945;</mi><mo>&#175;</mo></mover><mi>t</mi><mi>T</mi></msubsup>
+          <mo>)</mo><mo>&#8901;</mo>
+          <mover><mi>f</mi><mo>&#175;</mo></mover><mo>(</mo><msub><mi>&#952;</mi><mi>t</mi></msub><mo>)</mo>
+        </math>
+      </div>
+      <div class="decomp" style="gap:16px">
+        <div class="d" style="--c:var(--belief)"><div class="t">Composition · 1 &minus; &lambda;</div>
+          <div class="s">The share of the unemployed whose search is pointed at the right world. Everyone else is
+            searching effectively in vain.</div></div>
+        <div class="d" style="--c:var(--alpha)"><div class="t">Behaviour · 1 &minus; &alpha;&#772;</div>
+          <div class="s">How much of the correctly informed group's effort is actually going into applications
+            rather than into learning.</div></div>
+        <div class="d" style="--c:var(--muted)"><div class="t">Tightness · f&#772;(&theta;)</div>
+          <div class="s">The standard DMP term, <span class="mono">m&#8320;&thinsp;&theta;<sup>1&minus;&gamma;</sup></span>,
+            unchanged.</div></div>
+      </div>
+      <p class="eq-note" style="margin-top:14px;font-style:normal">The first two collapse into a single
+        <b>cognitive matching channel</b>:</p>
+      <div class="eq" style="margin-top:6px">
+        <span class="eq-num">(14)</span>
+        <math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
+          <msub><mi>&#956;</mi><mi>t</mi></msub><mo>=</mo>
+          <munder>
+            <munder accentunder="true">
+              <mrow><mo>(</mo><mn>1</mn><mo>&#8722;</mo><msub><mi>&#955;</mi><mi>t</mi></msub><mo>)</mo>
+                <mo>&#8901;</mo>
+                <mo>(</mo><mn>1</mn><mo>&#8722;</mo>
+                <msubsup><mover><mi>&#945;</mi><mo>&#175;</mo></mover><mi>t</mi><mi>T</mi></msubsup>
+                <mo>)</mo></mrow>
+              <mo>&#9183;</mo>
+            </munder>
+            <mtext>cognitive matching channel &#160;C&#8348;</mtext>
+          </munder>
+          <mo>&#8901;</mo><mover><mi>&#956;</mi><mo>&#175;</mo></mover>
+        </math>
+      </div>
+      <p class="eq-note" style="margin-top:10px">Matching efficiency is no longer a constant: it now fluctuates
+        with the collective beliefs and uncertainty of the workforce.</p>
+    </div>
+
+    <div class="grid g2 reveal" style="margin-top:30px;gap:26px">
+      <div class="card">
+        <h3>Where misalignment comes from, and goes</h3>
+        <p>The share of the unemployed holding false beliefs moves under three forces, derived in Appendix C from
+          the population flows.</p>
+        <div class="eq inline">
+          <span class="eq-num">(16)</span>
+          <math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
+            <mover><msub><mi>&#955;</mi><mi>t</mi></msub><mo>&#729;</mo></mover><mo>=</mo>
+            <mo>(</mo><msub><mi>&#955;</mi><mi>e</mi></msub><mo>&#8722;</mo><msub><mi>&#955;</mi><mi>t</mi></msub><mo>)</mo>
+            <mfrac><mrow><mi>s</mi><msub><mi>E</mi><mi>t</mi></msub></mrow><msub><mi>U</mi><mi>t</mi></msub></mfrac>
+            <mo>+</mo><mo>(</mo><msub><mi>f</mi><mi>T</mi></msub><mo>&#8722;</mo><msub><mi>f</mi><mi>F</mi></msub><mo>)</mo>
+            <msub><mi>&#955;</mi><mi>t</mi></msub><mo>(</mo><mn>1</mn><mo>&#8722;</mo><msub><mi>&#955;</mi><mi>t</mi></msub><mo>)</mo>
+            <mo>&#8722;</mo><mi>k</mi><msub><mi>&#955;</mi><mi>t</mi></msub>
+          </math>
+        </div>
+        <table class="tbl" style="margin-top:16px">
+          <tbody>
+            <tr><td class="sym" style="color:var(--prag)">Inflow</td>
+                <td>Newly separated workers arrive carrying whatever share of false beliefs
+                    <span class="mono">&lambda;<sub>e</sub></span> the employed had, pulling the pool toward it.</td></tr>
+            <tr><td class="sym" style="color:var(--belief)">Selection</td>
+                <td>Correctly informed workers leave for jobs faster, so the misinformed <em>concentrate</em> among
+                    those who remain. This term works against recovery.</td></tr>
+            <tr><td class="sym" style="color:var(--alpha)">Learning</td>
+                <td>Misinformed workers gather information, discover their model is wrong, and switch. The rate
+                    <span class="mono">k</span> is the speed of collective cognitive adjustment.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card">
+        <h3>Uncertainty is measured by disagreement</h3>
+        <p>Aggregating the individual policy exactly would mean integrating over the whole distribution of belief
+          states. Instead the paper carries the micro insight up directly: average learning effort rises with the
+          uncertainty prevailing in the market, and the natural measure of that is the entropy of the split between
+          the two belief groups.</p>
+        <div class="eq inline">
+          <span class="eq-num">(17)</span>
+          <math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
+            <msubsup><mover><mi>&#945;</mi><mo>&#175;</mo></mover><mi>t</mi><mi>T</mi></msubsup><mo>=</mo>
+            <msub><mi>&#945;</mi><mrow><mi>base</mi></mrow></msub><mo>+</mo><mi>c</mi>
+            <mo>&#8901;</mo><mi>H</mi><mo>(</mo><msub><mi>&#955;</mi><mi>t</mi></msub><mo>)</mo>
+          </math>
+        </div>
+        <div style="margin-top:16px">
+          <svg id="entropyCurve" class="chart" viewBox="0 0 480 210" role="img"
+               aria-label="Binary Shannon entropy as a function of the misinformed share"></svg>
+        </div>
+        <p class="eq-note" style="margin-top:6px">Entropy is minimal when the workforce agrees &mdash; whether it is
+          collectively right (<span class="mono">&lambda;&rarr;0</span>) or collectively wrong
+          (<span class="mono">&lambda;&rarr;1</span>) &mdash; and maximal at
+          <span class="mono">&lambda;=0.5</span>, where nobody knows which world they are in. Drag along the curve.</p>
+      </div>
+    </div>
+
+    <!-- ---- live macro ---- -->
+    <div class="lab reveal" style="margin-top:30px">
+      <div class="lab-head">
+        <span class="k">Interactive</span>
+        <h3>Impulse response to a structural shock</h3>
+        <div class="seg right" id="macroSpeed">
+          <button data-sp="1" class="on">Animate</button>
+          <button data-sp="0">Instant</button>
+        </div>
+      </div>
+      <p style="color:var(--ink-2);max-width:80ch;margin-top:0">The system is initialised at its pre-shock steady
+        state. At step 50 a one-off structural shock raises the misbelief share. The vacancy rate is held constant,
+        as in the paper's Figure 4.</p>
+
+      <div class="sim-grid">
+        <div>
+          <div class="control">
+            <label>Learning speed <i>k</i> <b id="kVal">0.080</b></label>
+            <input type="range" id="kIn" min="0.05" max="0.16" step="0.005" value="0.08">
+            <p class="hint">Rate at which misinformed workers discover their model is wrong. The policy margin of
+              guidance, counselling and fast-feedback retraining.</p>
+          </div>
+          <div class="control">
+            <label>Uncertainty sensitivity <i>c</i> <b id="cVal">0.400</b></label>
+            <input type="range" id="cIn" min="0.15" max="0.55" step="0.005" value="0.40">
+            <p class="hint">How much collective disagreement pulls effort out of applications. The policy margin of
+              a clearer information environment.</p>
+          </div>
+          <div class="control">
+            <label>Shock size &Delta;&lambda; <b id="sVal">0.25</b></label>
+            <input type="range" id="sIn" min="0.05" max="0.50" step="0.01" value="0.25">
+            <p class="hint">How much of the workforce the structural break instantly renders misinformed.</p>
+          </div>
+
+          <div class="readout" style="margin-top:18px">
+            <div class="r"><div class="v" id="uNow">—</div><div class="l">unemployment rate</div></div>
+            <div class="r"><div class="v" id="fNow">—</div><div class="l">job-finding rate</div></div>
+          </div>
+          <div class="readout" style="margin-top:14px">
+            <div class="r"><div class="v" id="uPeak" style="font-size:20px">—</div>
+              <div class="l">peak unemployment</div></div>
+            <div class="r"><div class="v" id="tRec" style="font-size:20px">—</div>
+              <div class="l">steps to 95% recovery of <i>f</i></div></div>
+          </div>
+
+          <div class="sim-foot" style="border:0;padding-top:12px">
+            <button class="btn btn-primary" id="macroRun">Replay</button>
+            <span class="muted mono" style="font-size:12.5px">step <b id="macroT">0</b>/120</span>
+          </div>
+        </div>
+
+        <div class="sim-panels" id="macroPanels"></div>
+      </div>
+    </div>
+
+    <details class="acc reveal">
+      <summary>Parameters, and where they come from</summary>
+      <div class="body">
+        <p>These are the authors' own values, taken from their simulation notebook rather than inferred from the
+          published figure. The simulator above and Figure 4 below both run on them.</p>
+        <table class="tbl">
+          <thead><tr><th style="width:1%">Symbol</th><th>Meaning</th><th style="text-align:right">Value</th></tr></thead>
+          <tbody>
+            <tr><td class="sym">s</td><td>Separation rate</td><td class="num">0.030</td></tr>
+            <tr><td class="sym">γ</td><td>Matching elasticity</td><td class="num">0.50</td></tr>
+            <tr><td class="sym">m<sub>0</sub></td><td>Baseline matching efficiency</td><td class="num">0.45</td></tr>
+            <tr class="grp"><td class="sym">v</td><td>Vacancy rate (held constant)</td><td class="num">0.060</td></tr>
+            <tr><td class="sym">α<sub>base</sub></td><td>Baseline information effort</td><td class="num">0.050</td></tr>
+            <tr><td class="sym">c</td><td>Uncertainty sensitivity</td><td class="num">0.400</td></tr>
+            <tr><td class="sym">k</td><td>Learning speed</td><td class="num">0.080</td></tr>
+            <tr><td class="sym">λ<sub>e</sub></td><td>False-belief share among the newly separated</td><td class="num">0.050</td></tr>
+            <tr class="grp"><td class="sym">f<sub>F</sub></td><td>Job-finding rate of the misinformed</td><td class="num">0.020</td></tr>
+            <tr><td class="sym">Δλ</td><td>Shock at t = 50</td><td class="num">+0.25</td></tr>
+          </tbody>
+        </table>
+        <p style="font-size:13.5px;margin-top:14px"><b>One place where the code and the text differ.</b> Section 4
+          assumes misdirected applications are systematically unsuccessful, so that
+          <span class="mono">f<sub>F</sub> &asymp; 0</span> and the job-finding rate factorises cleanly into
+          <span class="mono">(1&minus;λ)(1&minus;ᾱ)f&#772;(θ)</span>. The code keeps
+          <span class="mono">f<sub>F</sub> = 0.02</span>, so the actual series are
+          <span class="mono">(1&minus;λ)(1&minus;ᾱ)f&#772; + λf<sub>F</sub></span>. The difference is small but it is
+          why the job-finding rate never quite collapses to the cognitive channel alone.</p>
+        <p style="font-size:13.5px;margin-bottom:0"><b>And one quirk worth knowing.</b> In the loop the shock is
+          applied <em>after</em> the period's derived quantities have been computed, so
+          <i>λ</i> jumps at <span class="mono">t = 50</span> while entropy, effort,
+          <i>C</i>, <i>f</i> and <i>u</i> only respond at <span class="mono">t = 51</span>. That one-step lag is
+          reproduced here. Note also that entropy is in <b>bits</b> in this section
+          (<span class="mono">log<sub>2</sub></span>, Equation 18) but in <b>nats</b> in the micro figures &mdash;
+          which is why <i>H</i> peaks near 1 here and near 0.69 there.</p>
+      </div>
+    </details>
+
+    <figure class="fig reveal" style="margin-top:26px">
+      <div class="sim-panels" id="fig4Panels" style="grid-template-columns:repeat(3,1fr)"></div>
+      <figcaption><b>Figure 4 · Illustration of system dynamics following an impulse shock to
+        <i>&lambda;<sub>t</sub></i>.</b> The economy is initialized at its pre-shock steady state. At
+        <span class="mono">t = 50</span> an unanticipated, one-off structural shock (dashed line) raises the
+        misbelief share. The vacancy rate is held constant. The panels report the ensuing impulse responses of
+        belief misalignment, uncertainty, information effort, the cognitive matching channel, job finding, and
+        unemployment. <span class="muted">Redrawn from the authors' simulation code at the parameters above:
+        λ 0.107&rarr;0.357, H 0.490&rarr;0.940, ᾱᵀ 0.246&rarr;0.426, C 0.673&rarr;0.369, f 0.214&rarr;0.123,
+        peak u 15.7%.</span></figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- ================= BEVERIDGE ================= -->
+<section id="beveridge">
+  <div class="wrap">
+    <div class="reveal">
+      <span class="section-tag">Implication</span>
+      <h2>Why the curve moves out, and why it comes back so slowly</h2>
+      <p class="lead">A drop in the cognitive matching channel is observationally a drop in matching efficiency, and
+        a drop in matching efficiency <em>is</em> an outward shift of the Beveridge curve. The paper argues this in
+        prose; the curve below is what its own steady-state relation implies.</p>
+    </div>
+
+    <div class="lab reveal" style="margin-top:26px">
+      <div class="lab-head">
+        <span class="k">Derived</span>
+        <h3>The Beveridge curve under a cognitive shock</h3>
+        <div class="seg right" id="bevPlay"><button data-go="1">Play the shock</button></div>
+      </div>
+      <div class="grid g2" style="grid-template-columns:1.35fr 1fr;gap:28px;align-items:start;margin-top:8px">
+        <div>
+          <svg id="bevChart" class="chart" viewBox="0 0 620 400" role="img"
+               aria-label="Beveridge curve at pre-shock and post-shock matching efficiency, with the economy's trajectory"></svg>
+          <div class="legend">
+            <div class="li"><span class="sw" style="background:var(--good)"></span>pre-shock curve</div>
+            <div class="li"><span class="sw" style="background:var(--belief)"></span>curve at current <i>C<sub>t</sub></i></div>
+            <div class="li"><span class="dot" style="background:var(--accent)"></span>the economy</div>
+          </div>
+        </div>
+        <div>
+          <div class="eq inline" style="margin-top:0">
+            <math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
+              <mi>v</mi><mo>=</mo><mi>u</mi>
+              <msup><mrow><mo>[</mo><mfrac>
+                <mrow><mi>s</mi><mo>(</mo><mn>1</mn><mo>&#8722;</mo><mi>u</mi><mo>)</mo><mo>/</mo><mi>u</mi>
+                  <mo>&#8722;</mo><mi>&#955;</mi><msub><mi>f</mi><mi>F</mi></msub></mrow>
+                <mrow><mi>C</mi><mspace width="2px"/><msub><mi>m</mi><mn>0</mn></msub></mrow>
+              </mfrac><mo>]</mo></mrow>
+              <mrow><mn>1</mn><mo>/</mo><mo>(</mo><mn>1</mn><mo>&#8722;</mo><mi>&#947;</mi><mo>)</mo></mrow></msup>
+            </math>
+          </div>
+          <p style="font-size:14px;color:var(--ink-2);margin-top:14px">Set flows into unemployment equal to flows
+            out, <span class="mono">s(1&minus;u) = f&#8901;u</span>, substitute the job-finding rate the code
+            actually uses and solve for the vacancy rate. Every ingredient is the paper's; only the rearrangement
+            is ours.</p>
+          <div class="readout" style="margin-top:20px">
+            <div class="r"><div class="v" id="bevC" style="color:var(--belief)">—</div>
+              <div class="l">cognitive matching channel <i>C<sub>t</sub></i></div></div>
+          </div>
+          <div class="readout" style="margin-top:14px">
+            <div class="r"><div class="v" id="bevU" style="font-size:20px">—</div><div class="l">unemployment</div></div>
+            <div class="r"><div class="v" id="bevStep" style="font-size:20px">—</div><div class="l">step</div></div>
+          </div>
+          <div class="control" style="margin-top:18px">
+            <label>Scrub the shock</label>
+            <input type="range" id="bevStepIn" min="0" max="119" step="1" value="119">
+            <p class="hint">Drag to step through the impulse response by hand &mdash; the impulse-response panels
+              above move with it. The shock lands at step 50; the curve swings out over the next few steps and
+              takes far longer to come back.</p>
+          </div>
+          <div class="callout" style="margin-top:22px;font-size:14.5px">
+            <b>Note the gap.</b> The curve swings far further out than the economy ever travels. At the trough the
+            implied steady state would be catastrophic &mdash; but beliefs realign long before the economy could
+            get there. What is observed is a moderate rise in unemployment lasting far longer than the shock
+            itself: persistence without an equally large amplitude.
+          </div>
+        </div>
+      </div>
+      <p class="eq-note" style="margin-top:18px;padding-top:14px;border-top:1px solid var(--line)">
+        <b>This chart is not from the paper.</b> It is derived here from the paper's own steady-state relation, at
+        the authors' own parameters. Because the vacancy rate is held fixed, the economy traverses a vertical path
+        while the curve beneath it shifts &mdash; the paper does not model firms' vacancy posting, so there is no
+        behavioural response on that margin to show.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= POLICY ================= -->
+<section id="policy">
+  <div class="wrap">
+    <div class="reveal">
+      <span class="section-tag">Section 5 · policy</span>
+      <h2>Two margins, and a trade-off between them</h2>
+      <p class="lead">If the bottleneck after a structural change is cognitive, then policy has two places to push:
+        the speed at which beliefs realign, and the intensity of the learning detour that misalignment provokes.</p>
+    </div>
+
+    <div class="grid g2 reveal" style="margin-top:30px;gap:26px">
+      <div class="card" style="border-top:3px solid var(--alpha)">
+        <p class="kicker" style="color:var(--alpha)">Raise <i>k</i></p>
+        <h3>Accelerate belief alignment</h3>
+        <p>Acts directly on the learning flow that drains the stock of misinformed searchers. Timely guidance and
+          counselling; modular re-skilling and certification with fast feedback; job-search assistance coordinated
+          with local demand signals.</p>
+      </div>
+      <div class="card" style="border-top:3px solid var(--entropy)">
+        <p class="kicker" style="color:var(--entropy)">Lower <i>c</i></p>
+        <h3>Improve the information environment</h3>
+        <p>Helps correctly informed workers waste less effort on epistemic activity even when market-wide
+          disagreement is high. Richer labor-market information; clearer vacancy&ndash;skill taxonomies;
+          interoperable credentials; platforms that surface relevant matches.</p>
+      </div>
+    </div>
+
+    <div class="reveal" style="margin-top:24px">
+      <div class="callout" style="font-size:15.5px">
+        <b>They are complementary, but not free.</b> Faster learning shortens the misalignment phase; better
+        information lowers the intensity of the detour itself. Interventions that raise learning can temporarily
+        pull effort <em>away</em> from applications &mdash; so cost-effectiveness, and targeting the groups with the
+        highest misalignment, both matter.
+      </div>
+    </div>
+
+    <figure class="fig reveal" style="margin-top:26px">
+      <div class="grid g2" style="gap:18px">
+        <svg id="heatU" class="chart" viewBox="0 0 430 330" role="img"
+             aria-label="Heatmap of steady-state unemployment over learning speed k and uncertainty sensitivity c."></svg>
+        <svg id="heatR" class="chart" viewBox="0 0 430 330" role="img"
+             aria-label="Heatmap of steps to 95 percent recovery of the job-finding rate over k and c."></svg>
+      </div>
+      <figcaption><b>Figure 5 · Heatmaps across the <span class="mono">(k, c)</span> pair.</b> Left: steady-state
+        unemployment as a function of the learning speed <i>k</i> and the uncertainty sensitivity <i>c</i>. Right:
+        the number of steps required for the job-finding rate to return to 95% of its pre-shock level. Higher
+        <i>k</i> and lower <i>c</i> both lower steady-state unemployment and shorten the adjustment phase &mdash;
+        and the two margins are visibly substitutable, since the contours run diagonally. Hover any cell for its
+        value; the ring marks the baseline calibration.
+        <span class="muted">Redrawn from the authors' policy code, computed live on the same 12&times;12 grid.
+        <i>u*</i> spans 9.1&ndash;15.3%, recovery 15&ndash;39 steps. Note the left panel initialises at
+        <span class="mono">λ = 0.05</span> and runs 240 steps without a shock, while the right one runs the full
+        impulse response from <span class="mono">u = 0.07</span> &mdash; the two are not the same
+        experiment.</span></figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- ================= DISCUSSION ================= -->
+<section id="discussion">
+  <div class="wrap">
+    <div class="reveal">
+      <span class="section-tag">Discussion</span>
+      <h2>What the mechanism predicts, and what it cannot yet do</h2>
+    </div>
+
+    <div class="grid g2 reveal" style="margin-top:28px;gap:26px">
+      <div class="card">
+        <h3>Evidence consistent with the channel</h3>
+        <ul style="color:var(--ink-2);font-size:14.5px;margin:8px 0 0;padding-left:20px">
+          <li><b>Information-seeking is measurable and cyclical.</b> Google job-search indices improve unemployment
+            forecasting and spike around labor market turns; application-level data show systematic patterns in
+            search intensity over an unemployment spell.</li>
+          <li><b>Re-skilling is countercyclical.</b> U.S. community college and higher-education enrolment rose
+            notably during and after the Great Recession.</li>
+          <li><b>Information-intensive ALMPs work, especially in recessions.</b> Job-search assistance and training
+            tend to have positive medium-run effects and perform relatively well when the market is weak.</li>
+        </ul>
+        <p style="margin-top:14px">Each is what one would expect if, after a shock that changes the structure of
+          demand, workers divert effort from applications to belief updating &mdash; depressing effective matches
+          until beliefs realign.</p>
+      </div>
+      <div class="card">
+        <h3>Limitations the authors name</h3>
+        <ul style="color:var(--ink-2);font-size:14.5px;margin:8px 0 0;padding-left:20px">
+          <li><b>Homogeneous agents.</b> No heterogeneity in priors, learning ability or risk preferences.</li>
+          <li><b>One-sided.</b> Only the worker infers. Firms do not learn about the quality or composition of the
+            labor pool, and there is no vacancy-posting decision.</li>
+          <li><b>Qualitative.</b> The framework is a stylized proof-of-concept; the parameters have not been
+            calibrated to data, and the predictions have not been tested against it.</li>
+        </ul>
+        <p style="margin-top:14px">Planned next steps run along two streams: an econometric one, to calibrate the
+          novel parameters and test the predictions against labor market data; and a macroeconomic one, for formal
+          comparative statics and business cycle analysis.</p>
+      </div>
+    </div>
+
+    <div class="reveal" style="margin-top:26px">
+      <div class="callout" style="font-size:16px">
+        <b>The claim, stated plainly.</b> The speed of labor market recovery may be constrained not only by
+        aggregate demand, but by the slow and costly process of collective cognition. A structural shock does not
+        merely destroy jobs &mdash; it invalidates what a large number of people believe about where the jobs are,
+        and rebuilding that takes time that no amount of individual effort can compress.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= CITE ================= -->
+<section id="cite">
+  <div class="wrap">
+    <div class="reveal">
+      <span class="section-tag">Citation</span>
+      <h2>Cite this work</h2>
+      <div class="bib-head" style="margin-top:22px">
+        <button class="btn" id="copyBib">Copy BibTeX</button>
+        <span class="muted mono" style="font-size:12.5px" id="copyMsg"></span>
+      </div>
+<pre class="bib" id="bibtex">@article{zhang2025cognitive,
+  <span class="k">author</span>  = {Zhang, Zeqiang and Chen, Ruxin},
+  <span class="k">title</span>   = {A Cognitive Perspective on Information Frictions in Labor Markets},
+  <span class="k">journal</span> = {Entropy},
+  <span class="k">year</span>    = {2025},
+  <span class="k">note</span>    = {Accepted 18 November 2025}
+}</pre>
+      <div class="grid g2" style="margin-top:26px;gap:26px">
+        <div>
+          <p class="kicker">Funding</p>
+          <p style="color:var(--ink-2);font-size:14px;margin-top:0">This work is partially supported by Nagoya
+            University Research Fund.</p>
+          <p class="kicker" style="margin-top:18px">Data availability</p>
+          <p style="color:var(--ink-2);font-size:14px;margin-top:0">No new data were created or analyzed in this
+            study. The simulation code supporting the conclusions of this article will be made available by the
+            authors on request.</p>
+        </div>
+        <div>
+          <p class="kicker">Author contributions</p>
+          <p style="color:var(--ink-2);font-size:14px;margin-top:0">Z.Z. contributed the Free Energy Principle and
+            active inference methodology, the cognitive micro-foundations, the software, and the visualizations;
+            R.C. contributed the labor economics and search&ndash;matching methodology, the macro aggregation and
+            its implications, and project administration. Both authors contributed equally to this work.</p>
+          <p class="kicker" style="margin-top:18px">Conflicts of interest</p>
+          <p style="color:var(--ink-2);font-size:14px;margin-top:0">The authors declare no conflicts of interest.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="wrap">
+  <p class="closing">An interactive presentation built from the paper's equations and the authors' own simulation
+    notebooks. Figures 1&ndash;5 are all redrawn here rather than reproduced: 1&ndash;3 from a rerun of the micro
+    notebook, 4 and 5 computed live in your browser from the macro and policy code. The two simulators and the
+    Beveridge curve run the same equations. The page has no external image files.</p>
+  <p class="copyright">&copy; 2025 the authors. Published by MDPI in <i>Entropy</i> under the Creative Commons
+    Attribution (CC BY) license.</p>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>

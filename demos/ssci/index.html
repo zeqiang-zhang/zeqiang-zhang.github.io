@@ -1,0 +1,686 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RL-EM · Deep Reinforcement Learning in Labor Market Simulations</title>
+<meta name="description" content="Project page for 'Deep Reinforcement Learning in Labor Market Simulations' (IEEE CiFer 2025). An agent-based labor market in which rule-based firms are replaced by DDPG agents, which spontaneously learn three distinct profit-maximizing strategies depending on the level of competition.">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div id="progress"></div>
+<div id="tooltip" class="tooltip"></div>
+
+<!-- ================= NAV ================= -->
+<nav class="nav">
+  <div class="wrap">
+    <a href="#top" class="brand"><span class="logo"></span> RL-EM</a>
+    <button class="nav-burger" id="burger" aria-label="Menu">☰</button>
+    <div class="nav-links" id="navlinks">
+      <a href="#motivation">Motivation</a>
+      <a href="#model">Model</a>
+      <a href="#selection">Selection</a>
+      <a href="#strategies">Strategies</a>
+      <a href="#simulator">Simulator</a>
+      <a href="#multi">Multi-agent</a>
+      <a href="#welfare">Welfare</a>
+      <a href="#cite">Cite</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ================= HERO ================= -->
+<header class="hero" id="top">
+  <div class="wrap">
+    <div class="hero-inner">
+      <p class="venue">IEEE CiFer 2025 · Symposium on Computational Intelligence for Financial Engineering and Economics</p>
+      <h1 class="paper-title">Deep Reinforcement Learning in Labor Market Simulations</h1>
+
+      <div class="authors">
+        <div class="au">
+          <div class="n">Ruxin Chen</div>
+          <div class="aff">Department of Economics<br>Nagoya University, Japan</div>
+        </div>
+        <div class="au">
+          <div class="n">Zeqiang Zhang</div>
+          <div class="aff">Institute of Neural Information Processing<br>Ulm University, Germany</div>
+        </div>
+      </div>
+
+      <p class="method-line"><b>RL-EM</b> · the Reinforcement-Learning-based Employment Model</p>
+
+      <div class="abstract">
+        <span class="lbl">Abstract</span>
+        <p style="margin-top:0">This paper proposes a framework for applying reinforcement learning (RL) within
+        agent-based models (ABMs) to study labor market dynamics. ABMs provide a flexible platform for simulating
+        economic systems, particularly by modelling heterogeneous agents and their complex interactions, which
+        effectively capture non-linear and emergent phenomena in labor markets. We extend an existing labor market
+        model by integrating it into an RL framework, using the <b>Deep Deterministic Policy Gradient (DDPG)</b>
+        algorithm to train agents to maximize profits, and comparing their performance with bounded-rational agents
+        governed by predefined policies. Our findings show that RL agents, depending on the level of competition
+        and rationality in the market, <b>spontaneously learn distinct strategies</b>, which significantly impact
+        outcomes such as unemployment and wage distribution.</p>
+      </div>
+
+      <nav class="hero-links">
+        <a href="https://doi.org/10.1109/CiFer64978.2025.10975741" target="_blank" rel="noopener">
+          <span class="ic">DOI</span> Paper</a>
+        <a href="https://github.com/RLLaborMarketSimulations/DRL-in-Labor-Market-Simulations" target="_blank" rel="noopener">
+          <span class="ic">SRC</span> Source code</a>
+        <a href="#cite"><span class="ic">BIB</span> BibTeX</a>
+      </nav>
+    </div>
+  </div>
+
+  <!-- <div class="wrap">
+    <div class="highlights">
+      <div class="h"><b>3</b><span>Strategies learned without being specified</span></div>
+      <div class="h"><b>1 <small>· 2 · 20</small></b><span>Alternatives <i>n<sub>f</sub></i> seen by a job seeker</span></div>
+      <div class="h"><b>5</b><span>Firms, of which <i>N</i><sub>RL</sub> are learners</span></div>
+      <div class="h"><b>500</b><span>Time steps per simulated market</span></div>
+    </div>
+  </div> -->
+</header>
+
+<!-- ================= MOTIVATION ================= -->
+<section id="motivation">
+  <div class="wrap">
+    <div class="reveal">
+      <span class="section-tag">Motivation</span>
+      <h2>An agent-based model must be told <em>how its agents decide</em></h2>
+      <p class="lead">Macroeconomics has long relied on models that assume what firms want and how they get it.
+        Agent-based models relax the equilibrium assumptions but replace them with a different commitment: every
+        agent needs a decision rule, written down in advance. This paper removes that commitment for one class of
+        agent and asks what the agent does instead.</p>
+    </div>
+
+    <div class="grid g3 reveal" style="margin-top:34px">
+      <div class="card" style="border-top:3px solid var(--muted)">
+        <p class="kicker">Dynamic stochastic general equilibrium</p>
+        <h3>Assumed behavior</h3>
+        <p>DSGE models are used extensively to analyze policy and shocks, but rely on strong assumptions about
+          agent behavior and market conditions, which limits their realism and their applicability to real-world
+          scenarios.</p>
+      </div>
+      <div class="card" style="border-top:3px solid var(--tf)">
+        <p class="kicker">Agent-based models</p>
+        <h3>Prescribed behavior</h3>
+        <p>ABMs let macroeconomic phenomena emerge from bottom-up interactions of heterogeneous agents, without
+          assuming equilibrium. But the decision rules must still be predefined, which restricts the model's
+          ability to adapt to new conditions or learn from experience.</p>
+      </div>
+      <div class="card" style="border-top:3px solid var(--rl)">
+        <p class="kicker">This paper · RL-EM</p>
+        <h3>Discovered behavior</h3>
+        <p>A firm's policy is learned by trial-and-error interaction with the market rather than written down.
+          What the firm ends up doing is then an <em>observation</em> about the market, not an assumption about
+          the firm.</p>
+      </div>
+    </div>
+
+    <div class="reveal" style="margin-top:34px">
+      <div class="callout" style="font-size:16px">
+        <b>The gap this addresses.</b> RL has been applied to firm and consumer behavior in microeconomics, and
+        to Real Business Cycle models in macroeconomics. Its use to model <b>labor market</b> dynamics has
+        remained largely unexplored: existing agent-based labor market studies use traditional, rule-based ABMs.
+        To the authors' knowledge, this is the first labor market modelled with RL agents.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= MODEL ================= -->
+<section id="model">
+  <div class="wrap">
+    <div class="reveal">
+      <span class="section-tag">The RL-EM Model</span>
+      <h2>A Diamond&ndash;Mortensen&ndash;Pissarides market with a learning firm in it</h2>
+      <p class="lead">Workers flow between unemployment and employment. Firms post vacancies and wages; a matching
+        function converts the two stocks into hires; job seekers pick the best-paying option among the
+        <i>n<sub>f</sub></i> they happen to see. The only thing that changes between the baseline and RL-EM is
+        <b>who decides the vacancies and wages</b>.</p>
+    </div>
+
+    <figure class="fig reveal" id="fig1" style="margin-top:28px">
+      <img src="1.svg" alt="The RL-EM model: labor market flows on the left, the matching process in the middle, and the two firm types on the right.">
+      <figcaption><b>Fig. 1 · The RL-EM model.</b> <b>Left:</b> labor market flows &mdash; employed workers become
+        unemployed with separation probability &lambda;, and unemployed workers re-enter through the matching
+        process. <b>Middle:</b> at the beginning of each step every firm sets its vacancies and wage; the number of
+        matches follows the matching function; successfully matched seekers choose the highest-wage job among
+        <i>n<sub>f</sub></i> randomly drawn alternatives. <b>Right:</b> the two firm types &mdash; an RL firm that
+        learns its policy with DDPG to maximize cumulative reward, and a trend follower with a fixed policy that
+        follows the market trend. <span class="muted">Reproduced from the paper.</span></figcaption>
+    </figure>
+
+    <div class="grid g2 reveal" style="margin-top:30px;gap:26px">
+      <div class="card">
+        <h3>Wages are set through one number</h3>
+        <p>A firm does not name a wage directly. It chooses a <b>wage determination factor</b>
+          <span class="mono">b</span> that interpolates between the unemployment benefit <span class="mono">z</span>
+          and the added value of a worker <span class="mono">p</span>. All of the firm's bargaining posture is
+          compressed into that single scalar.</p>
+        <div class="eq inline">
+          <span class="eq-num">(1)</span>
+          <math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
+            <mi>w</mi><mo>=</mo><mi>b</mi><mspace width="2px"/><mi>z</mi><mo>+</mo>
+            <mo>(</mo><mn>1</mn><mo>&#8722;</mo><mi>b</mi><mo>)</mo><mspace width="2px"/><mi>p</mi>
+          </math>
+        </div>
+        <p class="muted" style="font-size:13px;margin-top:10px">With <span class="mono">z=500</span> and
+          <span class="mono">p=1000</span>, <span class="mono">b=1</span> pays the reservation wage and
+          <span class="mono">b=0</span> hands the entire surplus to the worker.</p>
+      </div>
+      <div class="card">
+        <h3>Hires come from a matching function</h3>
+        <p>The market is not a market-clearing auction. The number of hires in a step is a Cobb&ndash;Douglas
+          function of the two aggregate stocks: unemployed workers <span class="mono">u</span> and posted
+          vacancies <span class="mono">v</span>. Employment and unemployment then follow a simple stock
+          adjustment.</p>
+        <div class="eq inline">
+          <math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
+            <mi>m</mi><mo>(</mo><mi>u</mi><mo>,</mo><mi>v</mi><mo>)</mo><mo>=</mo>
+            <mi>A</mi><mspace width="2px"/><msup><mi>u</mi><mi>&#945;</mi></msup>
+            <mspace width="2px"/><msup><mi>v</mi><mrow><mn>1</mn><mo>&#8722;</mo><mi>&#945;</mi></mrow></msup>
+          </math>
+        </div>
+        <p class="muted" style="font-size:13px;margin-top:10px">
+          <span class="mono">A=0.471</span>, <span class="mono">&alpha;=0.6</span>, both taken from the empirical
+          labor literature; separations occur at rate <span class="mono">&lambda;=0.1</span>.</p>
+      </div>
+    </div>
+
+    <div class="grid g2 reveal" style="margin-top:22px;gap:26px">
+      <div class="card" style="border-left:3px solid var(--rl)">
+        <p class="kicker" style="color:var(--rl)">Firm type 1 · the learner</p>
+        <h3>The RL firm</h3>
+        <p>Observes the market state after the previous step &mdash; unemployment, its own headcount, total
+          vacancies, total and own matches, the average and its own wage &mdash; and emits an action
+          <span class="mono">(v, b)</span>. It is trained with DDPG to maximize discounted profit, receiving a
+          penalty of &minus;100 whenever it ends a step with no employees.</p>
+        <div class="eq inline">
+          <math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
+            <mi>&#960;</mi><mo>=</mo><munder><mo movablelimits="false">arg&#8202;max</mo><mi>&#960;</mi></munder>
+            <msub><mi>&#120124;</mi><mi>&#960;</mi></msub><mrow><mo>[</mo>
+            <munderover><mo movablelimits="false">&#8721;</mo><mrow><mi>t</mi><mo>=</mo><mn>0</mn></mrow><mi>T</mi></munderover>
+            <msup><mi>&#947;</mi><mi>t</mi></msup><msub><mi>r</mi><mi>t</mi></msub><mo>]</mo></mrow>
+          </math>
+        </div>
+        <p class="muted" style="font-size:13px;margin-top:10px">Actor: 4 fully connected layers. Critic: 3 layers,
+          with a target network and Ornstein&ndash;Uhlenbeck exploration noise. Curriculum learning introduces the
+          agent after 5 steps.</p>
+      </div>
+      <div class="card" style="border-left:3px solid var(--tf)">
+        <p class="kicker" style="color:var(--tf)">Firm type 2 · the baseline</p>
+        <h3>The trend follower</h3>
+        <p>A bounded-rational rule with no objective function. Each step it compares its wage against the market
+          average (<b>wage delta</b> &Delta;<sup>W</sup>) and its realized hires against what its vacancy share
+          would have earned at the market fill rate (<b>expected vacancies delta</b> &Delta;<sup>E</sup>), then
+          adjusts one of the two levers &mdash; Eq. (5) and (6) of the paper.</p>
+        <table class="tbl" style="margin-top:14px">
+          <thead><tr><th>Signal</th><th>Reading</th><th>Response</th></tr></thead>
+          <tbody>
+            <tr><td class="sym">&Delta;<sup>W</sup>&lt;0, &Delta;<sup>E</sup>&lt;0</td><td>underpaying, under-hiring</td><td>raise the wage</td></tr>
+            <tr><td class="sym">&Delta;<sup>W</sup>&gt;0, &Delta;<sup>E</sup>&gt;0</td><td>overpaying, over-hiring</td><td>cut the wage</td></tr>
+            <tr><td class="sym">&Delta;<sup>W</sup>&lt;0, &Delta;<sup>E</sup>&gt;0</td><td>cheap and effective</td><td>post more vacancies</td></tr>
+            <tr><td class="sym">&Delta;<sup>W</sup>&gt;0, &Delta;<sup>E</sup>&lt;0</td><td>expensive and ineffective</td><td>post fewer vacancies</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <details class="acc reveal">
+      <summary>Experimental parameters (Table I)</summary>
+      <div class="body">
+        <table class="tbl">
+          <thead><tr><th style="width:1%">Symbol</th><th>Description</th><th style="text-align:right">Value</th></tr></thead>
+          <tbody>
+            <tr><td class="sym">z</td><td>Unemployment benefit</td><td class="num">500</td></tr>
+            <tr><td class="sym">p</td><td>Added value of a worker</td><td class="num">1000</td></tr>
+            <tr><td class="sym">c</td><td>Recruitment cost per vacancy</td><td class="num">100</td></tr>
+            <tr><td class="sym">A</td><td>Matching function parameter</td><td class="num">0.471</td></tr>
+            <tr><td class="sym">α</td><td>Matching elasticity</td><td class="num">0.6</td></tr>
+            <tr><td class="sym">λ</td><td>Dismissal rate</td><td class="num">0.1</td></tr>
+            <tr class="grp"><td class="sym">T</td><td>Number of steps</td><td class="num">500</td></tr>
+            <tr><td class="sym">N<sub>Firm</sub></td><td>Number of firms</td><td class="num">5</td></tr>
+            <tr><td class="sym">N<sub>Worker</sub></td><td>Initial unemployed workers</td><td class="num">300</td></tr>
+            <tr><td class="sym">N<sub>Worker/firm</sub></td><td>Initial employed workers per firm</td><td class="num">5</td></tr>
+            <tr class="grp"><td class="sym">b<sub>init</sub></td><td>Initial wage determination factor</td><td class="num">0.5</td></tr>
+            <tr><td class="sym">μ<sub>b</sub></td><td>Trend-follower wage adjustment rate</td><td class="num">0.5</td></tr>
+            <tr class="grp"><td class="sym">μ<sub>v</sub></td><td>Trend-follower vacancy adjustment rate</td><td class="num">0.1</td></tr>
+            <tr><td class="sym">γ</td><td>Discount factor</td><td class="num">0.9</td></tr>
+            <tr><td class="sym">lr<sub>actor</sub></td><td>Actor learning rate</td><td class="num">10⁻⁴</td></tr>
+            <tr><td class="sym">lr<sub>critic</sub></td><td>Critic learning rate</td><td class="num">10⁻³</td></tr>
+          </tbody>
+        </table>
+        <p style="font-size:13.5px;margin-top:14px">Input states are normalized to <span class="mono">[0,1]</span>
+          and profits and rewards are divided by <span class="mono">10⁴</span> for stability. All reward figures on
+          this page use that same scaling.</p>
+      </div>
+    </details>
+  </div>
+</section>
+
+<!-- ================= SELECTION / n_f ================= -->
+<section id="selection">
+  <div class="wrap">
+    <div class="reveal">
+      <span class="section-tag">The competition parameter</span>
+      <h2><em>n<sub>f</sub></em> is the whole experiment</h2>
+      <p class="lead">A matched job seeker draws <i>n<sub>f</sub></i> vacancies at random and takes the
+        highest-paying one. From the firm's side, <i>n<sub>f</sub></i> is how much competition it faces; from the
+        worker's side, it is how transparent the market is. Every result in the paper is a sweep over this one
+        number.</p>
+    </div>
+
+    <div class="lab reveal" style="margin-top:28px">
+      <div class="lab-head">
+        <span class="k">Interactive</span>
+        <h3 style="margin:0">Who gets the applicants?</h3>
+      </div>
+      <p style="color:var(--ink-2);max-width:78ch;margin-top:0">Five firms post vacancies at different wages.
+        The paper states the selection rule in one sentence &mdash; <em>&ldquo;each unemployed worker randomly
+        selects <i>n<sub>f</sub></i> jobs and chooses the one with the highest wage&rdquo;</em> &mdash; and leaves
+        it there. Written out, a firm's share of applicants is the probability that the best of
+        <i>n<sub>f</sub></i> draws lands on it:</p>
+      <div class="eq" style="margin-top:4px">
+        <span class="eq-num">derived, not in the paper</span>
+        <math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
+          <msub><mi>P</mi><mi>i</mi></msub><mo>=</mo>
+          <msup>
+            <mrow><mo>(</mo><msub><mi>F</mi><mi>i</mi></msub><mo>+</mo>
+              <msub><mi>s</mi><mi>i</mi></msub><mo>)</mo></mrow>
+            <mrow><msub><mi>n</mi><mi>f</mi></msub></mrow>
+          </msup>
+          <mo>&#8722;</mo>
+          <msubsup><mi>F</mi><mi>i</mi><mrow><msub><mi>n</mi><mi>f</mi></msub></mrow></msubsup>
+        </math>
+        <p class="eq-note" style="font-style:normal">where <span class="mv">s<sub>i</sub></span> is firm
+          <span class="mv">i</span>&rsquo;s share of all posted vacancies and <span class="mv">F<sub>i</sub></span>
+          the share posted <em>below</em> its wage. Setting <span class="mv">n<sub>f</sub></span>&nbsp;=&nbsp;1
+          collapses this to <span class="mv">s<sub>i</sub></span> &mdash; the wage drops out entirely.</p>
+        <p class="eq-note" style="margin-top:10px">This closed form does not appear in the paper; it is worked out
+          here, and it is what the simulator below implements. Getting from the sentence to the formula needs two
+          things the paper does not state: that the <i>n<sub>f</sub></i> draws are uniform over <em>vacancies</em>
+          rather than over firms, and that they are drawn with replacement. Both are natural readings, and with
+          many vacancies the second makes almost no difference &mdash; but they are assumptions, not quotations.</p>
+      </div>
+
+      <div class="grid g2" style="grid-template-columns:1fr 1.25fr;gap:30px;align-items:start;margin-top:6px">
+        <div>
+          <div class="control">
+            <label>Alternatives seen by a seeker <i>n<sub>f</sub></i> <b id="lotNfVal">1</b></label>
+            <input type="range" id="lotNf" min="1" max="20" step="1" value="1">
+            <p class="hint" id="lotNfHint"></p>
+          </div>
+          <div class="control">
+            <label>Firm 1's wage <b id="lotWVal">525</b></label>
+            <input type="range" id="lotW" min="500" max="1000" step="5" value="525">
+            <p class="hint">The four rivals all post at 750, so 750 is a tie. Wages come from Eq. (1),
+              which bounds them between 500 and 1000.</p>
+          </div>
+          <div class="control">
+            <label>Firm 1's vacancies <b id="lotVVal">97</b></label>
+            <input type="range" id="lotV" min="1" max="120" step="1" value="97">
+            <p class="hint">The four rivals post 5 vacancies each.</p>
+          </div>
+          <div class="readout" style="margin-top:18px">
+            <div class="r"><div class="v" id="lotShare" style="color:var(--rl)">—</div><div class="l">share of applicants preferring Firm 1</div></div>
+          </div>
+        </div>
+        <div>
+          <svg id="lotChart" class="chart" viewBox="0 0 540 300" role="img" aria-label="Share of applicants by firm"></svg>
+        </div>
+      </div>
+
+      <div class="grid g3" style="gap:16px;margin-top:22px">
+        <div class="callout"><b>At <i>n<sub>f</sub></i>&nbsp;=&nbsp;1</b> the wage is irrelevant: a seeker takes
+          whatever it drew, so applicants split in proportion to vacancies. Firm 1 holds 83% of applicants at any
+          wage, including the floor. This is what makes the <b>sweatshop</b> profitable.</div>
+        <div class="callout"><b>Raise the wage to 760</b> &mdash; a 1% premium &mdash; and Firm 1's share goes from
+          2% to 100% at <i>n<sub>f</sub></i>&nbsp;=&nbsp;20. Being marginally best is worth everything, which is
+          what forces the <b>bait</b> at <i>n<sub>f</sub></i>&nbsp;=&nbsp;2 and makes bidding hopeless above it.</div>
+        <div class="callout" style="border-color:var(--rl)"><b>But this panel shows preferences, not hires.</b>
+          A firm can only take as many workers as it posted vacancies. When every firm keeps its posting tiny, the
+          preferred jobs fill immediately and the surplus seekers end up in the cheap ones regardless &mdash; the
+          rationing that makes the <b>scarcity</b> strategy work. It is visible in the simulator below.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= STRATEGIES ================= -->
+<section id="strategies">
+  <div class="wrap">
+    <div class="reveal">
+      <span class="section-tag">Result 1 · a single RL firm</span>
+      <h2>Three strategies, none of them written down</h2>
+      <p class="lead">One RL firm faces four trend followers. Nothing in the reward function mentions wages,
+        exploitation, or scarcity &mdash; only discounted profit. Yet the converged policy is qualitatively
+        different in each of the three competition regimes, and each has a recognizable name in economics.</p>
+    </div>
+
+    <div class="strat reveal">
+      <div class="card" style="--c:var(--tf)">
+        <p class="nf">n<sub>f</sub> = 1 · opaque market</p>
+        <h3>Sweatshop</h3>
+        <p class="sub">Maximum volume, minimum wage</p>
+        <p>With no ability to compare offers, seekers must accept whatever they drew. The agent learns it can post
+          an enormous number of jobs at the lowest possible wage and still fill them. It ends up employing most of
+          the workforce.</p>
+        <p style="margin-top:12px"><b style="color:var(--ink)">Gresham's law for firms.</b> The flood of cheap
+          vacancies lowers everyone's fill rate, so the higher-paying trend followers face rising recruitment
+          costs and shrink. Conscientious firms are crowded out by the exploitative one.</p>
+      </div>
+      <div class="card" style="--c:var(--wage)">
+        <p class="nf">n<sub>f</sub> = 2 · limited competition</p>
+        <h3>Bait-and-Switch Wage</h3>
+        <p class="sub">Promise high, then cut</p>
+        <p>Once seekers can compare two offers, the agent must outbid to be chosen. It announces a near-maximal
+          wage, absorbs the workforce &mdash; dragging the trend followers' wages up with it &mdash; and then,
+          because separations do not depend on the wage, cuts pay to the floor and stops hiring.</p>
+        <p style="margin-top:12px"><b style="color:var(--ink)">Best regime for workers.</b> Employment and wages
+          are both high. Firm profits are correspondingly low, and the trend followers even run negative.</p>
+      </div>
+      <div class="card" style="--c:var(--rl)">
+        <p class="nf">n<sub>f</sub> = 20 · near-full competition</p>
+        <h3>Scarcity-Driven</h3>
+        <p class="sub">Few jobs, low wages</p>
+        <p>Bidding is now hopeless: only the top wage is ever accepted, and any raise is matched. The agent instead
+          posts <em>as few vacancies as possible</em>. Because its own restraint keeps the trend followers small
+          too, the market becomes job-scarce &mdash; and scarce jobs fill even when badly paid.</p>
+        <p style="margin-top:12px"><b style="color:var(--ink)">Transparency backfires.</b> The market is almost
+          perfectly transparent, yet workers have the fewest options and a lower average wage than under limited
+          competition.</p>
+      </div>
+    </div>
+
+    <div class="reveal" style="margin-top:34px">
+      <div class="lab-head" style="margin-bottom:14px">
+        <span class="k">Fig. 2</span>
+        <h3 style="margin:0">Published policies and performance</h3>
+        <div class="seg right" id="regimeSwitch" role="tablist" aria-label="Competition regime">
+          <button data-nf="1" class="on" role="tab" aria-selected="true">n<sub>f</sub> = 1</button>
+          <button data-nf="2" role="tab" aria-selected="false">n<sub>f</sub> = 2</button>
+          <button data-nf="20" role="tab" aria-selected="false">n<sub>f</sub> = 20</button>
+        </div>
+      </div>
+      <figure class="fig">
+        <div class="sim-panels" id="figPanels"></div>
+        <div class="legend" style="margin-top:16px">
+          <div class="li"><span class="sw" style="background:var(--rl)"></span>RL agent</div>
+          <div class="li"><span class="sw" style="background:var(--tf)"></span>Trend follower (averaged over the four)</div>
+        </div>
+        <figcaption><b>Fig. 2 · Single RL firm at three levels of market transparency.</b> Policies (vacancies,
+          wages) and outcomes (employed workers, per-step reward) over 500 steps. Rewards are profits divided by
+          10⁴. <span class="muted">Curves digitised from Fig. 2 of the published paper and redrawn as vector
+          graphics; they reproduce the shape and scale of the originals, not their exact sample values.</span></figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- ================= SIMULATOR ================= -->
+<section id="simulator">
+  <div class="wrap">
+    <div class="reveal">
+      <span class="section-tag">Interactive</span>
+      <h2>Run the market yourself</h2>
+      <p class="lead">A browser reimplementation of the RL-EM environment. Choose what the RL firm does and how
+        transparent the market is, and watch the four trend followers react over 500 steps. The point is the
+        <b>mechanism</b>: why each strategy is viable in its own regime and what it does to workers.</p>
+    </div>
+
+    <div class="lab reveal" style="margin-top:26px">
+      <div class="lab-head">
+        <span class="k">Simulator</span>
+        <h3 style="margin:0">RL-EM, 5 firms, 500 steps</h3>
+        <div class="seg right" id="simSpeed">
+          <button data-sp="1" class="on">Animate</button>
+          <button data-sp="0">Instant</button>
+        </div>
+      </div>
+
+      <div class="sim-grid">
+        <div>
+          <p class="kicker" style="margin-bottom:8px">RL firm's strategy</p>
+          <div class="seg" id="simStrat" style="display:flex;flex-direction:column;align-items:stretch;width:100%">
+            <button data-s="sweatshop" class="on" style="text-align:left">Sweatshop</button>
+            <button data-s="bait" style="text-align:left;border-left:0;border-top:1px solid var(--line-2)">Bait-and-switch</button>
+            <button data-s="scarcity" style="text-align:left;border-left:0;border-top:1px solid var(--line-2)">Scarcity-driven</button>
+          </div>
+
+          <div class="control" style="margin-top:22px">
+            <label>Alternatives <i>n<sub>f</sub></i> <b id="simNfVal">1</b></label>
+            <input type="range" id="simNf" min="1" max="20" step="1" value="1">
+            <p class="hint">1 = opaque · 2 = limited competition · 20 = near-full transparency</p>
+          </div>
+
+          <div class="strategy-box" id="simNote"></div>
+
+          <div class="readout" style="margin-top:20px;gap:18px">
+            <div class="r"><div class="v" id="simEmp">—</div><div class="l">employed workers, market</div></div>
+            <div class="r"><div class="v" id="simWage">—</div><div class="l">average wage paid</div></div>
+          </div>
+          <div class="readout" style="margin-top:14px;gap:18px">
+            <div class="r"><div class="v" id="simRLp" style="color:var(--rl);font-size:20px">—</div><div class="l">RL firm · cumulative profit</div></div>
+            <div class="r"><div class="v" id="simTFp" style="color:var(--tf);font-size:20px">—</div><div class="l">trend follower · cumulative</div></div>
+          </div>
+
+          <div class="sim-foot" style="border:0;padding-top:14px;margin-top:8px">
+            <button class="btn btn-primary" id="simRun">Re-run</button>
+            <span class="muted mono" style="font-size:12.5px">step <b id="simT">0</b>/500</span>
+          </div>
+        </div>
+
+        <div class="sim-panels" id="simPanels"></div>
+      </div>
+
+      <div class="legend" style="margin-top:18px;padding-top:16px;border-top:1px solid var(--line)">
+        <div class="li"><span class="sw" style="background:var(--rl)"></span>RL firm</div>
+        <div class="li"><span class="sw" style="background:var(--tf)"></span>Trend follower (mean of four)</div>
+        <div class="li"><span class="sw" style="background:var(--muted);opacity:.6"></span>Market total</div>
+      </div>
+    </div>
+
+    <details class="acc reveal">
+      <summary>What is and is not the paper's system</summary>
+      <div class="body">
+        <p><b>Faithful to the paper.</b> The wage rule (Eq. 1), the Cobb&ndash;Douglas matching function, the
+          employment and unemployment transitions (Eq. 2&ndash;3), per-firm profit (Eq. 4), and all parameters in
+          Table I are implemented exactly as stated.</p>
+        <p><b>Formalised here.</b> The paper describes the selection rule in words &mdash; a seeker draws
+          <i>n<sub>f</sub></i> jobs and takes the highest wage &mdash; without writing down the resulting
+          allocation. The closed form used here is the one derived in the section above, and it adds a rationing
+          step the paper is silent on: a firm can only take as many workers as it posted vacancies, so seekers whose
+          first choice is already full spill over to the next-best firm. Without that step the low-wage firm would
+          receive nothing at high <i>n<sub>f</sub></i>, and the scarcity strategy could not work at all.</p>
+        <p><b>Reimplementation choices.</b> The trend-follower rules (Eq. 5&ndash;6) require a normalization for
+          the wage delta that the paper does not specify; here it is divided by <span class="mono">p&minus;z</span>,
+          with a small dead band so the rule does not chatter, and vacancies floored at one. The paper does not
+          state the firms' initial vacancy count; five is used.</p>
+        <p><b>Not the paper's system.</b> The RL firm here is <em>not</em> a trained DDPG network. It replays a
+          hand-specified caricature of the policy the trained agent converged to in each regime, so that the market
+          response can be inspected step by step. Cumulative profits are therefore what a fixed strategy earns
+          against fixed rule-based opposition, not the equilibrium payoff of a learned policy. With this setup the
+          <i>n<sub>f</sub></i>&nbsp;=&nbsp;1 and <i>n<sub>f</sub></i>&nbsp;=&nbsp;20 market outcomes closely track
+          the published values; at <i>n<sub>f</sub></i>&nbsp;=&nbsp;2 the trend followers do not re-expand after
+          the RL firm withdraws, so the simulated market contracts further than the published run does.</p>
+        <p style="margin-bottom:0">For the published results, see the digitised figures above and below, or run
+          the authors' code from the
+          <a href="https://github.com/RLLaborMarketSimulations/DRL-in-Labor-Market-Simulations" target="_blank" rel="noopener">project repository</a>.</p>
+      </div>
+    </details>
+  </div>
+</section>
+
+<!-- ================= MULTI-AGENT ================= -->
+<section id="multi">
+  <div class="wrap">
+    <div class="reveal">
+      <span class="section-tag">Result 2 · several RL firms</span>
+      <h2>Sharing a policy produces a cartel; separate policies produce factions</h2>
+      <p class="lead">Replacing more of the trend followers with learners changes the market twice over. First the
+        learners begin to <em>set</em> the trend rather than respond to it. Then, at
+        <i>N</i><sub>RL</sub>&nbsp;=&nbsp;5, what matters is whether they share one policy or hold their own.</p>
+    </div>
+
+    <div class="grid g2 reveal" style="margin-top:30px;gap:26px">
+      <div class="card" style="border-top:3px solid var(--wage)">
+        <p class="kicker">Shared actor and critic</p>
+        <h3>A cartel forms on its own</h3>
+        <p>With all RL firms updating the same networks, the gradient they follow is the collective one. They
+          converge on posting many vacancies at low wages to raise <em>joint</em> profits &mdash; the defining
+          behavior of a cartel &mdash; and they do so <b>regardless of the competition level</b>. Competition
+          stops disciplining wages entirely.</p>
+        <p style="margin-top:12px">Where competition does exist, employment and profits vary widely across the
+          identical firms: small differences from exploration noise are amplified into very different outcomes.</p>
+      </div>
+      <div class="card" style="border-top:3px solid var(--rl)">
+        <p class="kicker">Independent actors and critics</p>
+        <h3>The firms segregate into strategy groups</h3>
+        <p>Each firm now maximizes only its own profit, so the precondition for a cartel is gone. At
+          <i>n<sub>f</sub></i>&nbsp;=&nbsp;1 all five converge on the sweatshop strategy. At
+          <i>n<sub>f</sub></i>&nbsp;=&nbsp;2 they split spontaneously:</p>
+        <ul style="color:var(--ink-2);font-size:14.5px;margin:12px 0 0;padding-left:20px">
+          <li><b>Three firms</b> stop hiring from the outset, paying the lowest wage and avoiding recruitment costs.</li>
+          <li><b>One firm</b> plays bait-and-switch: it recruits hard, then halts and cuts pay.</li>
+          <li><b>One firm</b> keeps posting vacancies at a barely-reduced high wage, holding wages up to deter the
+            others from re-entering the hiring market.</li>
+        </ul>
+      </div>
+    </div>
+
+    <figure class="fig reveal" style="margin-top:26px">
+      <div class="lab-head" style="margin:0 0 12px">
+        <span class="k">Summary</span>
+        <h3 style="margin:0;font-size:17px">Final market state across all nine configurations</h3>
+      </div>
+      <svg id="marketChart" class="chart" viewBox="0 0 1000 400" role="img" aria-label="Employment and average wage across configurations"></svg>
+      <div class="legend" style="margin-top:6px">
+        <div class="li"><span class="dot" style="background:var(--emp)"></span>Employed workers (left axis)</div>
+        <div class="li"><span class="dot" style="background:var(--wage)"></span>Averaged wage (right axis)</div>
+      </div>
+      <figcaption><b>What each configuration does to workers.</b> Employment is nearly saturated everywhere except
+        under near-full competition. The wage tells the real story: the highest wage in the entire study belongs to
+        a single learner under <em>limited</em> competition; the shared-policy cartel at
+        <i>N</i><sub>RL</sub>&nbsp;=&nbsp;5 suppresses wages at <em>either</em> competition level; independent
+        learners restore them. <span class="muted">Not a figure from the paper &mdash; a summary chart assembled
+        from the market-outcome panels of its Figs. 2, 3 and 4, with values digitised from those panels. The
+        shared-policy rows correspond to the paper's Fig. 3, which is not reproduced here.</span></figcaption>
+    </figure>
+
+    <figure class="fig reveal" style="margin-top:26px">
+      <img src="independent.jpg" alt="Five RL firms with independent policies at two levels of market transparency: market summary above, per-firm vacancies, wages, employment and rewards below.">
+      <figcaption><b>Fig. 4 · Five RL firms with independent policies.</b> <b>Top:</b> market outcome at
+        <i>n<sub>f</sub></i>&nbsp;=&nbsp;1 and <i>n<sub>f</sub></i>&nbsp;=&nbsp;2. <b>Bottom:</b> the policy and
+        performance of each firm, one colour per firm. At <i>n<sub>f</sub></i>&nbsp;=&nbsp;1 the five traces
+        coincide &mdash; every firm has found the sweatshop strategy. At <i>n<sub>f</sub></i>&nbsp;=&nbsp;2 they
+        separate into the three groups described above.
+        <span class="muted">Reproduced from the paper.</span></figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- ================= WELFARE ================= -->
+<section id="welfare">
+  <div class="wrap">
+    <div class="reveal">
+      <span class="section-tag">Interpretation</span>
+      <h2>Competition helps workers, but only up to a point</h2>
+      <p class="lead">Reading the same simulations from the workers' side rather than the firms' gives the paper's
+        policy-relevant conclusion, and it is not monotone in transparency.</p>
+    </div>
+
+    <div class="grid g3 reveal" style="margin-top:30px;gap:20px">
+      <div class="card">
+        <p class="kicker">No competition</p>
+        <h3 style="font-size:18px">Exploitation</h3>
+        <p>Employment is high because the sweatshop absorbs the workforce, but wages sit at the floor and the
+          better-paying firms have been driven out.</p>
+      </div>
+      <div class="card" style="border-color:var(--emp)">
+        <p class="kicker" style="color:var(--emp)">Limited competition · best for workers</p>
+        <h3 style="font-size:18px">Dynamism</h3>
+        <p>Employment and wages are both at their highest across the entire study. Competition improves worker
+          welfare without draining the market of dynamism &mdash; though firms earn very little.</p>
+      </div>
+      <div class="card">
+        <p class="kicker">Near-full competition</p>
+        <h3 style="font-size:18px">Manipulation</h3>
+        <p>A firm able to influence market behavior responds to perfect competition by suppressing it. Job scarcity
+          replaces wage competition, and workers end up with fewer options than before.</p>
+      </div>
+    </div>
+
+    <div class="reveal" style="margin-top:30px">
+      <div class="callout" style="font-size:16px">
+        <b>The broader point.</b> None of these outcomes was encoded. Each is what profit maximization implies once
+        the firm is allowed to discover its own policy inside a specific market structure &mdash; which is exactly
+        what makes the combination of RL and agent-based modelling a useful instrument for policy analysis, and
+        exactly why the market structure has to be specified with care.
+      </div>
+    </div>
+
+    <details class="acc reveal" open>
+      <summary>Conclusion and future work</summary>
+      <div class="body">
+        <p>The paper introduces a framework for simulating labor markets by integrating deep multi-agent
+          reinforcement learning into agent-based models, replacing rule-based bounded-rational firms with
+          profit-maximizing DDPG agents. A single learner discovers three distinct strategies according to the
+          competition level; shared-policy learners lead market trends and form a cartel; independent learners
+          segregate into strategy groups. From the workers' perspective, outcomes are most favourable under
+          limited competition.</p>
+        <div class="grid g3" style="gap:16px;margin-top:16px">
+          <div class="callout"><b>AI efficiency.</b> Multi-threading or GPU acceleration to speed up the
+            simulations and the learning process.</div>
+          <div class="callout"><b>Modelling extensions.</b> RL-powered <em>workers</em>, enabling a game-theoretic
+            treatment of firm&ndash;worker interaction.</div>
+          <div class="callout"><b>Labor economics.</b> Richer market models with heterogeneous job types or diverse
+            worker categories.</div>
+        </div>
+      </div>
+    </details>
+  </div>
+</section>
+
+<!-- ================= CITE ================= -->
+<section id="cite">
+  <div class="wrap">
+    <div class="reveal">
+      <span class="section-tag">Citation</span>
+      <h2>Cite this work</h2>
+      <div class="bib-head" style="margin-top:22px">
+        <button class="btn" id="copyBib">Copy BibTeX</button>
+        <span class="muted mono" style="font-size:12.5px" id="copyMsg"></span>
+      </div>
+<pre class="bib" id="bibtex">@inproceedings{chen2025drl,
+  <span class="k">author</span>    = {Chen, Ruxin and Zhang, Zeqiang},
+  <span class="k">title</span>     = {Deep Reinforcement Learning in Labor Market Simulations},
+  <span class="k">booktitle</span> = {2025 IEEE Symposium on Computational Intelligence for
+               Financial Engineering and Economics (CiFer)},
+  <span class="k">year</span>      = {2025},
+  <span class="k">publisher</span> = {IEEE},
+  <span class="k">doi</span>       = {10.1109/CiFer64978.2025.10975741}
+}</pre>
+      <p style="color:var(--ink-2);font-size:14px;margin-top:22px">
+        <b>Acknowledgement.</b> This work was financially supported by JST SPRING, Grant Number JPiSP2125.
+        R.C. thanks the &ldquo;THERS Make New Standards Program for the Next Generation Researchers&rdquo;.</p>
+    </div>
+  </div>
+</section>
+
+<div class="wrap">
+  <p class="closing">An interactive presentation assembled from the paper's figures, equations and reported
+    results. Figures 1&ndash;3 have been redrawn as vector graphics; the simulator is an independent
+    reimplementation and is not the authors' trained system.</p>
+  <p class="copyright">&copy; 2025 IEEE. The paper has been published in <i>2025 IEEE Symposium on Computational
+    Intelligence for Financial Engineering and Economics (CiFer)</i>. Personal use of this material is permitted.
+    Permission from IEEE must be obtained for all other uses, in any current or future media, including
+    reprinting/republishing this material for advertising or promotional purposes, creating new collective works,
+    for resale or redistribution to servers or lists, or reuse of any copyrighted component of this work in other
+    works. DOI: <a href="https://doi.org/10.1109/CiFer64978.2025.10975741" target="_blank" rel="noopener">10.1109/CiFer64978.2025.10975741</a>.</p>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
