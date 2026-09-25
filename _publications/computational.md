@@ -7,7 +7,7 @@ date: 2026-09-09
 venue: 'Computational Economics'
 paperurl: 'https://arxiv.org/abs/2507.18229'
 demourl: '/demos/computational/'
-citation: 'Chen, Ruxin; Zhang, Zeqiang. (2025). &quot;From Individual Learning to Market Equilibrium: Correcting Structural and Parametric Biases in RL Simulations of Economic Models.&quot; <i>Arxiv</i>.'
+citation: 'Chen, Ruxin; Zhang, Zeqiang. (2026). &quot;From Individual Learning to Market Equilibrium: Correcting Structural and Parametric Biases in RL Simulations of Economic Models.&quot; <i>Computational Economics</i>.'
 ---
 
 
