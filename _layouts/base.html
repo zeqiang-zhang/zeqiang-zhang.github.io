@@ -18,6 +18,29 @@
     } catch (e) {}
   })();
 </script>
+{%- if page.url == "/" %}
+<script>
+  /* English home only: a visitor arriving from outside the site whose browser
+     prefers Chinese over English is sent to /chinese/. A choice made with the
+     中文 / EN switch (stored as "lang") always wins. */
+  (function () {
+    if (document.referrer.indexOf(location.origin + '/') === 0) return;
+    var stored = null;
+    try { stored = localStorage.getItem('lang'); } catch (e) {}
+    if (stored === 'en') return;
+    if (stored !== 'zh') {
+      var langs = navigator.languages && navigator.languages.length ? navigator.languages : [navigator.language || ''];
+      var first = '';
+      for (var i = 0; i < langs.length; i++) {
+        var l = String(langs[i]).toLowerCase();
+        if (l.indexOf('zh') === 0 || l.indexOf('en') === 0) { first = l.slice(0, 2); break; }
+      }
+      if (first !== 'zh') return;
+    }
+    location.replace('{{ "/chinese/" | relative_url }}');
+  })();
+</script>
+{%- endif %}
 {% include seo.html %}
 <link rel="alternate" hreflang="{{ t.alt_lang }}" href="{{ alt_url | absolute_url }}">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -60,6 +83,13 @@
 <script>
   document.addEventListener('click', function (e) {
     if (!e.target.closest) return;
+
+    // Remember an explicit language choice so the home page stops auto-detecting.
+    var langLink = e.target.closest('.nav-lang');
+    if (langLink) {
+      try { localStorage.setItem('lang', (langLink.getAttribute('lang') || '').slice(0, 2)); } catch (err) {}
+      return;
+    }
 
     // Light / dark toggle. If the new choice matches the system setting, drop the
     // override so the site keeps following the system from then on.
