@@ -270,10 +270,10 @@ defaults:
       path: ""
       type: publications
     values:
-      layout: single
-      author_profile: true
-      share: true
-      comments: true
+      layout: publication
+      lang: en
+      nav: /publications/
+      alt: /chinese/publications/
   # _portfolio
   - scope:
       path: ""
@@ -288,9 +288,10 @@ defaults:
       path: ""
       type: talks
     values:
-      layout: talk
-      author_profile: true
-      share: true
+      layout: plain
+      lang: en
+      nav: /talks/
+      alt: /chinese/talks/
 
 
 # Sass/SCSS

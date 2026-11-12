@@ -1,0 +1,57 @@
+---
+layout: base
+---
+{%- assign lang = page.lang | default: "en" -%}
+{%- assign t = site.data.i18n[lang] -%}
+<section class="intro">
+  <div class="intro-text">
+    <h1 class="intro-name">{{ t.name }}{% if t.name_alt %} <span class="name-alt" lang="en">{{ t.name_alt }}</span>{% endif %}</h1>
+    <p class="intro-role">{{ t.role }}<br>{{ t.affiliation }}</p>
+    <ul class="intro-links">
+      <li><a href="mailto:{{ site.author.email }}">{{ t.email }}</a></li>
+      {%- if site.author.googlescholar %}
+      <li><a href="{{ site.author.googlescholar }}">{{ t.scholar }}</a></li>
+      {%- endif %}
+      {%- if site.author.orcid %}
+      <li><a href="{{ site.author.orcid }}">ORCID</a></li>
+      {%- endif %}
+      <li><a href="{{ t.cv_url | relative_url }}">{{ t.cv }}</a></li>
+    </ul>
+  </div>
+  <img class="intro-photo" src="{{ '/images/profile.png' | relative_url }}" alt="{{ t.name }}" width="200" height="228">
+</section>
+
+<div class="prose">
+{{ content }}
+</div>
+
+{%- if page.interests %}
+<section class="section">
+  <h2 class="label">{{ t.research_interests }}</h2>
+  <p class="interests">
+    {%- for i in page.interests -%}
+    <span class="nowrap">{{ i }}</span>{% unless forloop.last %}<span class="dot" aria-hidden="true">·</span> {% endunless %}
+    {%- endfor -%}
+  </p>
+</section>
+{%- endif %}
+
+{%- assign selected = site.publications | where: "selected", true | sort: "date" | reverse %}
+{%- if selected.size > 0 %}
+<section class="section">
+  <div class="section-head">
+    <h2 class="label">{{ t.selected_publications }}</h2>
+    <a class="more" href="{{ t.pubs_url | relative_url }}">{{ t.all_publications }} &rarr;</a>
+  </div>
+  {%- assign marks = "" %}
+  <div class="pub-list">
+    {%- for p in selected %}
+    {%- assign marks = p.authors | join: "" | append: marks %}
+    {% include site/pub.html pub=p lang=lang year=true %}
+    {%- endfor %}
+  </div>
+  {%- if marks contains "†" or marks contains "*" %}
+  <p class="legend">{{ t.legend }}</p>
+  {%- endif %}
+</section>
+{%- endif %}

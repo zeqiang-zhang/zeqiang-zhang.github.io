@@ -1,0 +1,27 @@
+{%- comment -%} All publications, newest first, grouped by year. {%- endcomment -%}
+{%- assign lang = include.lang | default: "en" -%}
+{%- assign t = site.data.i18n[lang] -%}
+<p class="page-note">
+  {%- if site.author.googlescholar %}<a href="{{ site.author.googlescholar }}">{{ t.scholar }}</a><span class="dot" aria-hidden="true">·</span>{% endif -%}
+  {{ t.legend }}
+</p>
+{%- assign pubs = site.publications | sort: "date" | reverse -%}
+{%- assign current = "" -%}
+{%- for p in pubs -%}
+  {%- assign y = p.date | date: "%Y" -%}
+  {%- if y != current -%}
+    {%- unless forloop.first %}
+  </div>
+</section>
+    {%- endunless %}
+<section class="year-group">
+  <h2 class="year">{{ y }}</h2>
+  <div class="pub-list">
+    {%- assign current = y -%}
+  {%- endif %}
+    {% include site/pub.html pub=p lang=lang %}
+  {%- if forloop.last %}
+  </div>
+</section>
+  {%- endif -%}
+{%- endfor -%}

@@ -1,0 +1,95 @@
+<!doctype html>
+{%- assign lang = page.lang | default: "en" -%}
+{%- assign t = site.data.i18n[lang] -%}
+{%- assign nav = site.data.navigation[lang] -%}
+{%- assign here = page.nav | default: page.url -%}
+{%- assign alt_url = page.alt | default: t.alt_default -%}
+<html lang="{{ t.html_lang }}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<script>
+  /* Apply a stored light/dark choice before first paint (no flash). */
+  (function () {
+    try {
+      var t = localStorage.getItem('theme');
+      if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
+    } catch (e) {}
+  })();
+</script>
+{% include seo.html %}
+<link rel="alternate" hreflang="{{ t.alt_lang }}" href="{{ alt_url | absolute_url }}">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Noto+Sans:ital,wght@0,300..600;1,300..600{% if lang == 'zh' %}&family=Noto+Sans+SC:wght@300..600{% endif %}&display=swap">
+<link rel="stylesheet" href="{{ '/assets/css/site.css' | relative_url }}">
+<link rel="icon" type="image/svg+xml" href="{{ '/images/favicon.svg' | relative_url }}">
+<link rel="icon" type="image/png" sizes="32x32" href="{{ '/images/favicon-32x32.png' | relative_url }}">
+<link rel="apple-touch-icon" sizes="180x180" href="{{ '/images/apple-touch-icon-180x180.png' | relative_url }}">
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap">
+    <a class="brand" href="{{ t.home_url | relative_url }}">{{ t.brand }}</a>
+    <nav class="nav" aria-label="Main">
+      {%- for item in nav %}
+      <a href="{{ item.url | relative_url }}"{% if here == item.url %} aria-current="page"{% endif %}>{{ item.title }}</a>
+      {%- endfor %}
+      <span class="nav-sep" aria-hidden="true"></span>
+      <a class="nav-lang" href="{{ alt_url | relative_url }}" lang="{{ t.alt_lang }}" hreflang="{{ t.alt_lang }}">{{ t.alt_label }}</a>
+      <button type="button" class="theme-toggle" aria-label="{{ t.theme_toggle }}" title="{{ t.theme_toggle }}">
+        <svg class="icon-moon" viewBox="0 0 24 24" width="15" height="15" aria-hidden="true"><path d="M20.5 14.2A8.5 8.5 0 0 1 9.8 3.5a8.5 8.5 0 1 0 10.7 10.7z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" width="15" height="15" aria-hidden="true"><circle cx="12" cy="12" r="4.2" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M5.3 18.7l1.6-1.6M17.1 6.9l1.6-1.6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      </button>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+{{ content }}
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <span>&copy; {{ site.time | date: "%Y" }} {{ site.name }}</span>
+    <span>{{ t.updated }} {{ site.time | date: t.date_format }}</span>
+  </div>
+</footer>
+
+<script>
+  document.addEventListener('click', function (e) {
+    if (!e.target.closest) return;
+
+    // Light / dark toggle. If the new choice matches the system setting, drop the
+    // override so the site keeps following the system from then on.
+    if (e.target.closest('.theme-toggle')) {
+      var root = document.documentElement;
+      var systemDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      var current = root.getAttribute('data-theme') || (systemDark ? 'dark' : 'light');
+      var next = current === 'dark' ? 'light' : 'dark';
+      try {
+        if ((next === 'dark') === systemDark) {
+          root.removeAttribute('data-theme');
+          localStorage.removeItem('theme');
+        } else {
+          root.setAttribute('data-theme', next);
+          localStorage.setItem('theme', next);
+        }
+      } catch (err) {
+        root.setAttribute('data-theme', next);
+      }
+      return;
+    }
+
+    // Abstract toggles in publication lists.
+    var btn = e.target.closest('.pub-toggle');
+    if (!btn) return;
+    var box = document.getElementById(btn.getAttribute('aria-controls'));
+    var open = btn.getAttribute('aria-expanded') === 'true';
+    btn.setAttribute('aria-expanded', open ? 'false' : 'true');
+    if (box) box.hidden = open;
+  });
+</script>
+</body>
+</html>

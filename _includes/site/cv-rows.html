@@ -1,0 +1,8 @@
+{%- comment -%} Date-left rows (service, projects, employment, teaching). {%- endcomment -%}
+{%- assign lang = include.lang | default: "en" -%}
+<div class="cv-rows">
+  {%- for r in include.items %}
+  <div class="cv-date">{{ r.date[lang] }}</div>
+  <div>{{ r.title[lang] }}{% if r.note %}<br><span class="muted">{{ r.note[lang] }}</span>{% endif %}</div>
+  {%- endfor %}
+</div>

@@ -1,0 +1,19 @@
+{%- comment -%} All talks and posters, newest first. {%- endcomment -%}
+{%- assign talks = site.talks | sort: "date" | reverse -%}
+<div class="pub-list talk-list">
+  {%- for p in talks %}
+  <article class="pub">
+    <div class="pub-tag">
+      <span>{{ p.date | date: "%Y.%m" }}</span>
+      {%- if p.format %}<span class="sub">{{ p.format }}</span>{% endif %}
+    </div>
+    <div class="pub-body">
+      <h3 class="pub-title">{% if p.link %}<a href="{{ p.link }}">{{ p.title }}</a>{% else %}{{ p.title }}{% endif %}</h3>
+      {%- if p.authors %}
+      <p class="pub-authors">{% include site/authors.html authors=p.authors %}</p>
+      {%- endif %}
+      <p class="pub-venue">{{ p.venue }}{% if p.location %} · {{ p.location }}{% endif %}</p>
+    </div>
+  </article>
+  {%- endfor %}
+</div>

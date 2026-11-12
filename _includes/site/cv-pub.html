@@ -1,0 +1,11 @@
+{%- comment -%} One numbered paper line in the CV. include.n = running number. {%- endcomment -%}
+{%- assign p = include.pub -%}
+<li class="cv-item">
+  <span class="cv-num">{% if include.n < 10 %}0{% endif %}{{ include.n }}</span>
+  <div>
+    {%- include site/authors.html authors=p.authors -%}.
+    {%- if include.lang == "zh" %} “{{ p.title }}”. <span class="muted">（{{ p.cv_zh }}）</span>
+    {%- else %} “{{ p.title }}.” <em>{{ p.venue }}</em>{% if p.volume %}, {{ p.volume }}{% endif %}, {{ p.date | date: "%Y" }}.
+    {%- endif -%}
+  </div>
+</li>

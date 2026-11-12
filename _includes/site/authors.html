@@ -1,0 +1,12 @@
+{%- comment -%}
+  Renders an author array, e.g. ["Zeqiang Zhang†", "Ruxin Chen†"].
+  Trailing † (equal contribution) or * (corresponding) become superscripts;
+  the site owner (site.author.name) is highlighted.
+{%- endcomment -%}
+{%- for a in include.authors -%}
+  {%- assign name = a | remove: "†" | remove: "*" | strip -%}
+  {%- assign mark = a | remove: name | strip -%}
+  {%- if name == site.author.name -%}<span class="me">{{ name }}</span>{%- else -%}{{ name }}{%- endif -%}
+  {%- if mark != "" -%}<sup>{{ mark }}</sup>{%- endif -%}
+  {%- unless forloop.last -%}, {% endunless -%}
+{%- endfor -%}

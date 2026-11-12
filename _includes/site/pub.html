@@ -1,0 +1,32 @@
+{%- comment -%}
+  One publication entry.
+  include.pub   – a document from site.publications
+  include.lang  – "en" | "zh" (UI labels only)
+  include.year  – true: show the year under the venue tag and hide the full venue line (home page)
+{%- endcomment -%}
+{%- assign p = include.pub -%}
+{%- assign lang = include.lang | default: "en" -%}
+{%- assign t = site.data.i18n[lang] -%}
+{%- assign uid = p.url | slugify -%}
+{%- assign abstract = p.content | strip -%}
+<article class="pub">
+  <div class="pub-tag">
+    <span>{{ p.venue_short }}</span>
+    {%- if include.year %}<span class="sub">{{ p.date | date: "%Y" }}</span>{% endif %}
+  </div>
+  <div class="pub-body">
+    <h3 class="pub-title"><a href="{{ p.url | relative_url }}">{{ p.title }}</a></h3>
+    <p class="pub-authors">{% include site/authors.html authors=p.authors %}</p>
+    {%- unless include.year %}
+    <p class="pub-venue"><em>{{ p.venue }}</em>{% if p.volume %}, {{ p.volume }}{% endif %}</p>
+    {%- endunless %}
+    <div class="pub-links">
+      {%- if p.paperurl %}<a href="{{ p.paperurl }}">{{ t.paper }}</a>{% endif -%}
+      {%- if p.demourl %}<a href="{{ p.demourl | relative_url }}">{{ t.project }}</a>{% endif -%}
+      {%- if abstract != "" %}<button type="button" class="pub-toggle" aria-expanded="false" aria-controls="abs-{{ uid }}">{{ t.abstract }}</button>{% endif -%}
+    </div>
+    {%- if abstract != "" %}
+    <div class="pub-abstract" id="abs-{{ uid }}" hidden>{{ abstract }}</div>
+    {%- endif %}
+  </div>
+</article>

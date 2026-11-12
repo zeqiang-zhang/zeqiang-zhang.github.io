@@ -1,0 +1,36 @@
+---
+layout: base
+---
+{%- assign lang = page.lang | default: "en" -%}
+{%- assign t = site.data.i18n[lang] -%}
+{%- assign year = page.date | date: "%Y" -%}
+{%- assign all_authors = page.authors | join: " " -%}
+<article class="pub-page">
+  <a class="more back" href="{{ t.pubs_url | relative_url }}">&larr; {{ t.all_publications }}</a>
+  <header class="page-head">
+    <p class="label">{{ page.venue_short }} · {{ year }}</p>
+    <h1 class="page-title">{{ page.title }}</h1>
+    <p class="pub-authors">{% include site/authors.html authors=page.authors %}</p>
+    <p class="pub-venue"><em>{{ page.venue }}</em>{% if page.volume %}, {{ page.volume }}{% endif %}, {{ year }}</p>
+    <div class="pub-links">
+      {%- if page.paperurl %}<a href="{{ page.paperurl }}">{{ t.paper }}</a>{% endif -%}
+      {%- if page.demourl %}<a href="{{ page.demourl | relative_url }}">{{ t.project }}</a>{% endif -%}
+    </div>
+    {%- if all_authors contains "†" or all_authors contains "*" %}
+    <p class="legend">{{ t.legend }}</p>
+    {%- endif %}
+  </header>
+
+  {%- if page.teaser %}
+  <figure class="teaser">
+    <img src="{{ page.teaser | relative_url }}" alt="Overview figure for {{ page.title | escape }}" loading="lazy">
+  </figure>
+  {%- endif %}
+
+  <section class="section">
+    <h2 class="label">{{ t.abstract }}</h2>
+    <div class="prose">
+{{ content }}
+    </div>
+  </section>
+</article>

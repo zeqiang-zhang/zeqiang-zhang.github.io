@@ -1,0 +1,118 @@
+# CV content for /cv/ (English) and /chinese/cv/ (Chinese).
+# Every entry carries both languages side by side so the two versions stay in sync.
+# Published papers are NOT listed here: they come from _publications/*.md
+# (fields `cv: first | coauthor`, `cv_rank`, and `cv_zh` for the Chinese venue note).
+
+contact:
+  email: "zeqiang.zhang@uni-ulm.de"
+  web: "zeqiang-zhang.github.io"
+  orcid: "0000-0001-8764-1123"
+
+head:
+  en:
+    name: "Zeqiang Zhang"
+    role: "PhD Candidate in Computer Science<br>Institute of Neural Information Processing, Ulm University, Germany"
+  zh:
+    name: "张泽强"
+    name_alt: "Zeqiang Zhang"
+    role: "德国乌尔姆大学 神经信息处理研究所 · 博士研究生 / 科学雇员"
+
+titles:
+  en:
+    highlights: "Highlights"
+    education: "Education"
+    research: "Research Interests"
+    publications: "Publications"
+    first: "First / Corresponding Author"
+    coauthor: "Co-Author"
+    manuscripts: "Manuscripts"
+    service: "Academic Service"
+    projects: "Research Projects"
+    employment: "Employment"
+    teaching: "Teaching · Ulm University"
+    legend: "† Equal contribution. * Corresponding author."
+    orcid: "ORCID"
+  zh:
+    highlights: "成果概述 / Highlights"
+    education: "教育背景 / Education"
+    research: "研究方向 / Research"
+    publications: "论文发表 / Publications"
+    first: "第一 / 通讯作者"
+    coauthor: "合作作者"
+    manuscripts: "论文手稿 / Manuscripts"
+    service: "学术服务 / Service"
+    projects: "项目经历 / Projects"
+    employment: "工作经历 / Employment"
+    teaching: "教学经历 / Teaching"
+    legend: "† 共同第一作者　* 通讯作者"
+    orcid: "ORCID"
+
+highlights:
+  en: >-
+    First / corresponding author of <strong>1 NeurIPS paper</strong> and <strong>3 journal articles</strong>
+    (ACM TAAS, Entropy, Computational Economics). Co-author of papers at ICML 2026, in Rock Mechanics and
+    Rock Engineering, and at IEEE CiFer 2025.
+  zh: >-
+    以第一/通讯作者发表 <strong>CCF-A 会议论文 1 篇</strong>、<strong>SCI/SSCI 期刊论文 3 篇</strong>；另以合作作者发表
+    CCF-A 会议论文 1 篇、SCI 期刊论文 1 篇、CPCI 会议论文 1 篇。
+
+education:
+  - date: { en: "Apr 2022 – Sep 2027 (expected)", zh: "2022.04 – 2027.09（预计）" }
+    degree: { en: "Dr. rer. nat. in Computer Science", zh: "自然科学博士（计算机科学）" }
+    school: { en: "Ulm University, Germany", zh: "德国 乌尔姆大学" }
+    note: { en: "Supervisor: Prof. Dr. Dr. Daniel Alexander Braun", zh: "导师：Prof. Dr. Dr. Daniel Alexander Braun" }
+  - date: { en: "Oct 2019 – Sep 2021", zh: "2019.10 – 2021.09" }
+    degree: { en: "M.Sc. in Cognitive Systems", zh: "理学硕士（认知系统）" }
+    school: { en: "Ulm University, Germany", zh: "德国 乌尔姆大学" }
+    note: { en: "Interdisciplinary program in computer science and psychology · Supervisor: Prof. Dr. Dr. Daniel Alexander Braun", zh: "导师：Prof. Dr. Dr. Daniel Alexander Braun" }
+  - date: { en: "Sep 2015 – Jun 2019", zh: "2015.09 – 2019.06" }
+    degree: { en: "B.Eng. in Electronic Science and Technology", zh: "工学学士（电子科学与技术）" }
+    school: { en: "Southeast University, China", zh: "中国 东南大学" }
+
+research:
+  en:
+    keywords: "Reinforcement Learning · Goal-Conditioned Learning · Intrinsic Motivation · World Models"
+    text: >-
+      My research lies at the intersection of reinforcement learning, goal-conditioned learning, intrinsic
+      motivation, and world model learning. I am particularly interested in how autonomous agents can learn and
+      adapt in complex, dynamic environments driven by internal goals and curiosity.
+  zh:
+    keywords: "强化学习 · 目标条件学习 · 内在动机 · 世界模型学习"
+    text: >-
+      研究聚焦于强化学习、目标条件学习（Goal-conditioned learning）、内在动机（Intrinsic motivation）与世界模型学习（World
+      model learning）的交叉领域，重点关注自主智能体如何在复杂、动态的环境中，由内在目标与好奇心驱动，实现自主学习与持续适应。
+
+# Manuscripts (under review). The CV section only appears when this list is non-empty.
+# Entry format:
+#   - title: "Paper title"
+#     authors: ["Zeqiang Zhang", "Co-Author†"]
+manuscripts_status: { en: "Under review.", zh: "（会议在审）" }
+manuscripts: []
+
+service:
+  - date: { en: "2027", zh: "2027" }
+    title: { en: "Reviewer, International Conference on Learning Representations (ICLR)", zh: "International Conference on Learning Representations（ICLR）　审稿人" }
+  - date: { en: "2025, 2026", zh: "2025 / 2026" }
+    title: { en: "Reviewer, European Workshop on Reinforcement Learning (EWRL)", zh: "European Workshop on Reinforcement Learning（EWRL）　审稿人" }
+
+projects:
+  - date: { en: "Aug 2025 – May 2027", zh: "2025.08 – 2027.05" }
+    title: { en: "Robust Learning of World Models for Interactive Agents", zh: "交互式智能体世界模型的稳健学习" }
+    note: { en: "Funded by the German Aerospace Center (DLR)", zh: "德国航天局（DLR）资助项目" }
+  - date: { en: "Jan 2022 – May 2025", zh: "2022.01 – 2025.05" }
+    title: { en: "Personalizing Learning Paths and Learning Processes with AI Methods", zh: "使用人工智能方法个性化学习路径和学习过程" }
+    note: { en: "Funded by the German Federal Ministry of Education and Research (BMBF)", zh: "德国联邦教育与研究部（BMBF）资助项目" }
+
+employment:
+  - date: { en: "Jan 2022 – present", zh: "2022.01 – 至今" }
+    title: { en: "Research Associate (Wissenschaftlicher Mitarbeiter), Institute of Neural Information Processing, Ulm University", zh: "德国乌尔姆大学 神经信息处理研究所　科学研究雇员" }
+  - date: { en: "Jun 2021 – Jul 2021", zh: "2021.06 – 2021.07" }
+    title: { en: "Student Assistant, Institute of Insurance Science, Ulm University", zh: "德国乌尔姆大学 保险学研究所　学生助理" }
+
+teaching:
+  - date: { en: "2022 – 2026", zh: "2022 – 2026" }
+    title: { en: "Project Deep Reinforcement Learning", zh: "Project Deep Reinforcement Learning（深度强化学习项目）" }
+    note: { en: "Summer 2022 – Winter 2024/25; Winter 2025/26", zh: "2022 夏季学期 – 2024/25 冬季学期；2025/26 冬季学期" }
+  - date: { en: "2022 – 2025", zh: "2022 – 2025" }
+    title: { en: "Neurotechnology: Brain-Computer Interfacing", zh: "Neurotechnology: Brain-Computer Interfacing（神经技术：脑机接口）" }
+    note: { en: "Winter 2022/23 – Winter 2024/25", zh: "2022/23 冬季学期 – 2024/25 冬季学期" }

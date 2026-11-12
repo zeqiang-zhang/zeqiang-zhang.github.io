@@ -31,3 +31,25 @@ main:
     
   # - title: "Guide"
   #   url: /markdown/
+
+# Navigation for the redesigned layouts (_layouts/base.html).
+# `main` above is kept only for the old template pages that still use it.
+en:
+  - title: "About"
+    url: /
+  - title: "Publications"
+    url: /publications/
+  - title: "Talks"
+    url: /talks/
+  - title: "CV"
+    url: /cv/
+
+zh:
+  - title: "主页"
+    url: /chinese/
+  - title: "论文"
+    url: /chinese/publications/
+  - title: "报告"
+    url: /chinese/talks/
+  - title: "简历"
+    url: /chinese/cv/
