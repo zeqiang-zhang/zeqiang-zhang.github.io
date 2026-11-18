@@ -1,0 +1,74 @@
+---
+layout: project
+title: "从个体学习到市场均衡"
+title_zh: "从个体学习到市场均衡：修正经济模型强化学习仿真中的结构性与参数性偏差"
+description: "论文《From Individual Learning to Market Equilibrium: Correcting Structural and Parametric Biases in RL Simulations of Economic Models》（Computational Economics，2026）的项目主页。"
+pub: /publication/computational
+lang: zh
+nav: /chinese/publications/
+alt: /demos/computational/
+affiliations:
+  - "日本名古屋大学 经济学系"
+  - "德国乌尔姆大学 神经信息处理研究所"
+author_affil: [1, 2]
+links:
+  - { label: "论文", url: "https://doi.org/10.1007/s10614-026-11464-y" }
+  - { label: "arXiv", url: "https://arxiv.org/abs/2507.18229" }
+bibtex: |
+  @article{chen2026individual,
+    title   = {From Individual Learning to Market Equilibrium: Correcting Structural and Parametric Biases in RL Simulations of Economic Models},
+    author  = {Chen, Ruxin and Zhang, Zeqiang},
+    journal = {Computational Economics},
+    year    = {2026},
+    doi     = {10.1007/s10614-026-11464-y}
+  }
+---
+<section class="section">
+  <h2 class="label">摘要</h2>
+  <p>将强化学习（RL）应用于经济建模时暴露出一个根本性矛盾：标准的 RL 智能体并不表现为竞争性的价格接受者。宏观经济模型通常假设主体把总体条件视为给定，而朴素的单智能体 RL 算法会学会考虑自身对环境的影响，实际上行使了市场势力。我们在一个具有凹生产函数的搜寻匹配模型中说明了这种偏离：标准 RL 智能体收敛到买方垄断配置，而不是竞争均衡。此外，我们还表明，RL 处理时间折现的方式会扭曲标准的跨期经济权衡。为解决这些问题，我们提出校准的平均场强化学习框架：它限制智能体针对外生的总体状态进行优化，以恢复价格接受行为，并重新校准 RL 的奖励结构，使其反映真实的经济机会成本。通过迭代更新总体状态，算法收敛到一个平稳不动点，从而恢复竞争均衡。该方法为在动态一般均衡模型中嵌入学习算法提供了一种途径。</p>
+</section>
+
+<section class="section">
+  <h2 class="label">问题</h2>
+  <p>我们研究一个具有凹生产函数的搜寻匹配劳动力市场。企业以每期成本 <i>c</i> 发布职位空缺；空缺被填补的速度取决于市场紧度 <i>θ</i> = <i>v</i>/<i>u</i>，工资通过议价决定。在经济模型中，企业是原子式的，把 <i>θ</i> 视为给定。</p>
+  <p>在同一环境中训练的单个 RL 智能体则不同，原因有两点。</p>
+  <ol>
+    <li><b>结构性偏差。</b>智能体发现自己发布的空缺会改变 <i>θ</i>，进而改变工资，于是学会像买方垄断者一样行事。</li>
+    <li><b>参数性偏差。</b>在经济模型中，企业的创造就业条件按利率和离职率对空缺成本加权。RL 的折扣因子无法体现这种资本机会成本，因此智能体错误估计了空缺的成本。</li>
+  </ol>
+  <p>训练后的智能体使市场紧度维持在 0.1 左右，远低于理论均衡值 0.78。</p>
+  <figure class="fig">
+    <img src="../fig_naive_rl.png" alt="左：训练过程中的奖励。右：训练过程中的市场紧度维持在 0.1 附近，低于以虚线表示的理论均衡值。" loading="lazy">
+    <figcaption><b>图 1.</b> 朴素 RL 仿真。左：训练过程中的奖励。右：训练过程中的市场紧度 <i>θ</i> 与理论均衡值的比较。阴影为五次独立运行的标准差。</figcaption>
+  </figure>
+</section>
+
+<section class="section">
+  <h2 class="label">方法</h2>
+  <p>校准的平均场强化学习同时修正这两种偏差。平均场形式消除结构性偏差：智能体代表众多原子式企业中的一个，针对给定的总体状态进行优化，因此自身行为无法改变市场紧度。将奖励中的空缺成本 <i>c</i> 替换为反映资本机会成本的有效成本 <i>c</i><sub>eff</sub>，可以消除参数性偏差。算法的迭代步骤如下：</p>
+  <ol>
+    <li>初始化总体市场紧度 <i>θ</i><sup>(0)</sup>。</li>
+    <li>给定 <i>θ</i><sup>(<i>k</i>)</sup>，用 DDPG 训练智能体，奖励中使用 <i>c</i><sub>eff</sub>。</li>
+    <li>根据学到的策略更新总体状态，得到 <i>θ</i><sup>(<i>k</i>+1)</sup>。</li>
+    <li>重复上述步骤，直到总体状态与策略相互一致，即达到不动点。</li>
+  </ol>
+</section>
+
+<section class="section">
+  <h2 class="label">结果</h2>
+  <p>同时使用两种修正后，市场紧度收敛到理论均衡值。</p>
+  <figure class="fig fig--narrow">
+    <img src="../fig_corrected.png" alt="市场紧度随平均场迭代从 0.3 上升，并稳定在理论均衡值附近。" loading="lazy">
+    <figcaption><b>图 2.</b> 同时使用两种修正时，市场紧度 <i>θ</i> 随平均场迭代的变化，并与理论均衡值比较。阴影为五次独立运行的标准差。</figcaption>
+  </figure>
+  <p>只修正一种偏差是不够的。只做结构性修正时，智能体低估空缺成本，导致过度雇佣；只做参数性修正时，智能体仍会操纵市场。</p>
+  <figure class="fig">
+    <img src="../fig_ablation.png" alt="左：只做结构性修正时，市场紧度稳定在 0.9 左右，高于均衡值。右：只做参数性修正时，市场紧度维持在 0.1 附近。" loading="lazy">
+    <figcaption><b>图 3.</b> 只做结构性修正（左）和只做参数性修正（右）时的市场紧度 <i>θ</i>。</figcaption>
+  </figure>
+  <p>同时使用两种修正学到的策略把失业率映射为市场紧度，并经过理论稳态（<i>u</i> = 0.033，<i>θ</i> = 0.78）附近。</p>
+  <figure class="fig">
+    <img src="../fig_policy.png" alt="学到的策略函数：市场紧度随失业率下降，星号标出理论稳态。" loading="lazy">
+    <figcaption><b>图 4.</b> 学到的策略函数：市场紧度 <i>θ</i> 与失业率 <i>u<sub>t</sub></i> 的关系。星号表示理论稳态 (0.033, 0.78)。阴影为五次独立运行的标准差。</figcaption>
+  </figure>
+</section>

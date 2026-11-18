@@ -1,0 +1,29 @@
+{%- comment -%} GCSL-NF results, Tables 4 and 5 of the paper (arXiv v3). include.lang = en | zh {%- endcomment -%}
+<div class="tabs">
+<div class="tab-list" role="tablist">
+<button type="button" role="tab" aria-selected="true" aria-controls="gcsl-disc">{% if include.lang == "zh" %}离散动作{% else %}Discrete actions{% endif %}</button>
+<button type="button" role="tab" aria-selected="false" aria-controls="gcsl-cont">{% if include.lang == "zh" %}连续动作{% else %}Continuous actions{% endif %}</button>
+</div>
+<div class="table-wrap" id="gcsl-disc" role="tabpanel">
+<table class="data-table num">
+<thead><tr><th>{% if include.lang == "zh" %}任务{% else %}Task{% endif %}</th><th>GCSL-NF</th><th>GCSL</th><th>HER DQN</th><th>HER A2C</th><th>W-GCSL</th><th>Contrastive GCRL</th></tr></thead><tbody>
+<tr><td>Point Mass Navigation</td><td>0.085&nbsp;±&nbsp;0.037</td><td>0.187&nbsp;±&nbsp;0.080</td><td>0.066&nbsp;±&nbsp;0.019</td><td>0.158&nbsp;±&nbsp;0.029</td><td>0.127&nbsp;±&nbsp;0.084</td><td class="best">0.065&nbsp;±&nbsp;0.014</td></tr>
+<tr><td>Point Mass with Obstacles</td><td class="best">0.152&nbsp;±&nbsp;0.015</td><td>0.341&nbsp;±&nbsp;0.050</td><td>0.299&nbsp;±&nbsp;0.031</td><td>0.481&nbsp;±&nbsp;0.105</td><td>0.364&nbsp;±&nbsp;0.034</td><td>0.213&nbsp;±&nbsp;0.038</td></tr>
+<tr><td>2D 4-Room Navigation</td><td class="best">0.495&nbsp;±&nbsp;0.089</td><td>0.781&nbsp;±&nbsp;0.066</td><td>0.658&nbsp;±&nbsp;0.075</td><td>1.153&nbsp;±&nbsp;0.312</td><td>0.775&nbsp;±&nbsp;0.052</td><td>0.668&nbsp;±&nbsp;0.070</td></tr>
+<tr><td>2D LiDAR: orientation</td><td class="best">0.555&nbsp;±&nbsp;0.070</td><td>0.749&nbsp;±&nbsp;0.087</td><td>1.597&nbsp;±&nbsp;0.086</td><td>1.520&nbsp;±&nbsp;0.099</td><td>0.654&nbsp;±&nbsp;0.147</td><td>1.227&nbsp;±&nbsp;0.096</td></tr>
+<tr><td>2D LiDAR: position</td><td class="best">0.344&nbsp;±&nbsp;0.060</td><td>0.435&nbsp;±&nbsp;0.040</td><td>0.734&nbsp;±&nbsp;0.030</td><td>0.879&nbsp;±&nbsp;0.058</td><td>0.379&nbsp;±&nbsp;0.043</td><td>0.659&nbsp;±&nbsp;0.033</td></tr>
+<tr><td>Object Pushing: puck</td><td class="best">0.078&nbsp;±&nbsp;0.009</td><td>0.306&nbsp;±&nbsp;0.035</td><td>0.463&nbsp;±&nbsp;0.005</td><td>0.458&nbsp;±&nbsp;0.008</td><td>0.334&nbsp;±&nbsp;0.031</td><td>0.465&nbsp;±&nbsp;0.019</td></tr>
+<tr><td>Object Pushing: end effector</td><td class="best">0.205&nbsp;±&nbsp;0.016</td><td>0.384&nbsp;±&nbsp;0.019</td><td>0.321&nbsp;±&nbsp;0.037</td><td>0.345&nbsp;±&nbsp;0.112</td><td>0.445&nbsp;±&nbsp;0.016</td><td>0.440&nbsp;±&nbsp;0.022</td></tr>
+</tbody></table></div>
+<div class="table-wrap" id="gcsl-cont" role="tabpanel" hidden>
+<table class="data-table num">
+<thead><tr><th>{% if include.lang == "zh" %}任务{% else %}Task{% endif %}</th><th>GCSL-NF</th><th>GCSL</th><th>HER DDPG</th><th>Contrastive GCRL</th></tr></thead><tbody>
+<tr><td>Car Racing: position</td><td>0.043&nbsp;±&nbsp;0.019</td><td class="best">0.037&nbsp;±&nbsp;0.010</td><td>0.133&nbsp;±&nbsp;0.222</td><td>0.173&nbsp;±&nbsp;0.007</td></tr>
+<tr><td>Car Racing: velocity</td><td class="best">0.013&nbsp;±&nbsp;0.008</td><td>0.016&nbsp;±&nbsp;0.004</td><td>0.054&nbsp;±&nbsp;0.023</td><td>0.256&nbsp;±&nbsp;0.008</td></tr>
+<tr><td>Car Racing 4-Room: position</td><td>0.387&nbsp;±&nbsp;0.077</td><td>1.267&nbsp;±&nbsp;0.045</td><td>0.457&nbsp;±&nbsp;0.021</td><td class="best">0.296&nbsp;±&nbsp;0.055</td></tr>
+<tr><td>Car Racing 4-Room: velocity</td><td>0.095&nbsp;±&nbsp;0.011</td><td>0.233&nbsp;±&nbsp;0.030</td><td class="best">0.076&nbsp;±&nbsp;0.004</td><td>0.246&nbsp;±&nbsp;0.009</td></tr>
+<tr><td>Fetch Reach</td><td>0.036&nbsp;±&nbsp;0.003</td><td class="best">0.013&nbsp;±&nbsp;0.013</td><td>0.079&nbsp;±&nbsp;0.021</td><td>0.035&nbsp;±&nbsp;0.002</td></tr>
+<tr><td>Fetch Push</td><td class="best">0.049&nbsp;±&nbsp;0.014</td><td>0.165&nbsp;±&nbsp;0.009</td><td>0.171&nbsp;±&nbsp;0.003</td><td>0.060&nbsp;±&nbsp;0.007</td></tr>
+</tbody></table></div>
+</div>
+<p class="table-note">{% if include.lang == "zh" %}训练结束时到目标的距离，5 个随机种子的均值 ± 标准差，越低越好；每行最优值加粗。{% else %}Final distance to the goal, mean ± standard deviation over 5 seeds; lower is better. The best value in each row is in bold.{% endif %}</p>

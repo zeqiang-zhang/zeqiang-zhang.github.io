@@ -1,0 +1,65 @@
+---
+layout: base
+---
+{%- comment -%}
+  Project page for one paper (pages under /demos/).
+  Title, authors, venue and year come from the matching _publications entry (page.pub = its url).
+  Front matter on the page itself:
+    affiliations  – list of affiliation strings
+    author_affil  – optional, affiliation number per author (same order as the publication's authors)
+    links         – list of {label, url}
+    bibtex        – BibTeX entry
+    lang, title_zh – Chinese pages (lang: zh) show title_zh with the English title beneath
+{%- endcomment -%}
+{%- assign lang = page.lang | default: "en" -%}
+{%- assign t = site.data.i18n[lang] -%}
+{%- assign pub = site.publications | where: "url", page.pub | first -%}
+{%- assign year = pub.date | date: "%Y" -%}
+{%- assign all_authors = pub.authors | join: " " -%}
+<article class="project">
+  <a class="more back" href="{{ t.pubs_url | relative_url }}">&larr; {{ t.all_publications }}</a>
+
+  <header class="project-head">
+    <p class="label">{{ pub.venue_short }} · {{ year }}</p>
+    {%- if page.title_zh %}
+    <h1 class="project-title">{{ page.title_zh }}</h1>
+    <p class="project-orig" lang="en">{{ pub.title }}</p>
+    {%- else %}
+    <h1 class="project-title">{{ pub.title }}</h1>
+    {%- endif %}
+    <p class="project-authors">
+      {%- for a in pub.authors -%}
+        {%- assign name = a | remove: "†" | remove: "*" | strip -%}
+        {%- assign mark = a | remove: name | strip -%}
+        {%- assign aff = page.author_affil[forloop.index0] -%}
+        <span class="nowrap">
+          {%- if name == site.author.name %}<span class="me">{{ name }}</span>{% else %}{{ name }}{% endif -%}
+          {%- if aff or mark != "" %}<sup>{{ aff }}{% if aff and mark != "" %},{% endif %}{{ mark }}</sup>{% endif -%}
+        </span>
+        {%- unless forloop.last %}, {% endunless -%}
+      {%- endfor -%}
+    </p>
+    <p class="project-affil">
+      {%- for af in page.affiliations -%}
+        <span class="affil">{% if page.affiliations.size > 1 %}<sup>{{ forloop.index }}</sup>{% endif %}{{ af }}</span>
+      {%- endfor -%}
+    </p>
+    {%- if all_authors contains "†" or all_authors contains "*" %}
+    <p class="legend">{{ t.legend }}</p>
+    {%- endif %}
+    <p class="pub-venue"><em>{{ pub.venue }}</em>{% if pub.volume %}, {{ pub.volume }}{% endif %}, {{ year }}</p>
+    <div class="pub-links">
+      {%- for l in page.links %}<a href="{{ l.url }}">{{ l.label }}</a>{% endfor -%}
+      <a href="#bibtex">BibTeX</a>
+    </div>
+  </header>
+
+  <div class="project-body">
+{{ content }}
+  </div>
+
+  <section class="section" id="bibtex">
+    <h2 class="label">BibTeX</h2>
+    <pre class="bibtex"><code>{{ page.bibtex | strip | escape }}</code></pre>
+  </section>
+</article>

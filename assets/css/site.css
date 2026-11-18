@@ -379,10 +379,132 @@ html[lang="zh-CN"] .page-title { letter-spacing: .14em; }
 .teaser img { width: 100%; border-radius: 2px; background: #fff; }
 /* Paper figures have white backgrounds; dim them a little on the dark theme. */
 @media screen and (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) .teaser img { filter: brightness(.85); }
+  :root:not([data-theme="light"]) .teaser img,
+  :root:not([data-theme="light"]) .fig img { filter: brightness(.85); }
 }
 @media screen {
-  :root[data-theme="dark"] .teaser img { filter: brightness(.85); }
+  :root[data-theme="dark"] .teaser img,
+  :root[data-theme="dark"] .fig img { filter: brightness(.85); }
+}
+
+/* ---------- Project pages (/demos/) ---------- */
+
+.project-head .label { margin-bottom: 10px; }
+.project-title { margin: 0; font-size: 30px; font-weight: 400; line-height: 1.3; }
+.project-authors { margin: 16px 0 0; font-size: 15.5px; line-height: 1.6; color: var(--ink-2); }
+.project-affil { margin: 4px 0 0; font-size: 14px; line-height: 1.6; color: var(--muted); }
+.project-affil .affil { display: block; }
+.project-head .legend { margin-top: 4px; }
+.project-head .pub-venue { margin-top: 10px; }
+.project-head .pub-links { margin-top: 14px; }
+
+.project-body .section { margin-top: 48px; }
+.project-body p { margin: 0 0 1em; }
+.project-body p:last-child { margin-bottom: 0; }
+
+.fig { margin: 28px 0; }
+.fig img { display: block; width: 100%; height: auto; background: #fff; border-radius: 2px; }
+.fig figcaption { margin-top: 10px; font-size: 14px; line-height: 1.6; color: var(--muted); }
+.fig figcaption b { color: var(--ink-2); font-weight: 500; }
+/* Single-panel or tall figures: narrower and centred so they don't dominate. */
+.fig--narrow img { max-width: 72%; margin: 0 auto; }
+@media (max-width: 640px) { .fig--narrow img { max-width: 100%; } }
+
+.eq {
+  margin: 20px 0;
+  text-align: center;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 19px;
+}
+
+.table-wrap { margin: 20px 0; overflow-x: auto; }
+.data-table { width: 100%; border-collapse: collapse; font-size: 14.5px; line-height: 1.55; }
+.data-table th,
+.data-table td { padding: 9px 16px 9px 0; text-align: left; vertical-align: top; border-bottom: 1px solid var(--rule); }
+.data-table th {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  border-bottom-color: var(--rule-strong);
+}
+.data-table td:first-child { white-space: nowrap; }
+
+.bibtex {
+  margin: 0;
+  padding: 14px 16px;
+  overflow-x: auto;
+  background: var(--tint);
+  border-left: 2px solid var(--ink);
+  font-family: var(--mono);
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: var(--ink-2);
+}
+
+.project-orig { margin: 8px 0 0; font-size: 15px; line-height: 1.5; color: var(--muted); }
+.project-body h3 { margin: 32px 0 10px; font-size: 16px; font-weight: 500; }
+.project-body ol { margin: 0 0 1em; padding-left: 1.4em; }
+.project-body ol li { margin: 0 0 .35em; }
+
+/* Tabs (handler in base.html) */
+.tab-list { display: flex; flex-wrap: wrap; gap: 4px 22px; margin: 20px 0 0; border-bottom: 1px solid var(--rule); }
+.tab-list [role="tab"] {
+  margin-bottom: -1px;
+  padding: 6px 0;
+  border: 0;
+  border-bottom: 1px solid transparent;
+  background: none;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  cursor: pointer;
+}
+.tab-list [role="tab"]:lang(zh) { font-size: 12.5px; letter-spacing: .1em; }
+.tab-list [role="tab"]:hover { color: var(--ink); }
+.tab-list [role="tab"][aria-selected="true"] { color: var(--ink); border-bottom-color: var(--ink); }
+.tabs .table-wrap { margin-top: 4px; }
+.data-table td.best { font-weight: 500; color: var(--ink); }
+.data-table.num { font-size: 13px; }
+.data-table.num th,
+.data-table.num td { padding: 8px 0 8px 12px; }
+.data-table.num th:first-child,
+.data-table.num td:first-child { padding-left: 0; white-space: normal; min-width: 128px; }
+.data-table.num th { font-size: 10px; letter-spacing: .08em; }
+.data-table.num td:not(:first-child),
+.data-table.num th:not(:first-child) { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.table-note { margin: 8px 0 0; font-size: 13px; color: var(--faint); }
+
+/* Interactive widget (e.g. demos/entropy/policy.js) */
+.widget { margin: 28px 0; padding: 18px 20px 20px; border: 1px solid var(--rule); border-radius: 4px; }
+.widget-controls { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 28px; }
+.widget-control { display: block; font-size: 14px; color: var(--ink-2); }
+.widget-control .row { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+.widget-control output { font-family: var(--mono); font-size: 12.5px; color: var(--ink); }
+.widget-control input[type="range"] { width: 100%; margin: 6px 0 0; accent-color: var(--ink); }
+.widget-plots { display: grid; grid-template-columns: 1fr 1fr; gap: 16px 24px; margin-top: 18px; }
+.widget-plot svg { display: block; width: 100%; height: auto; overflow: visible; }
+.widget-plot .ttl { font-size: 13px; color: var(--ink-2); margin: 0 0 4px; }
+.widget-stats { display: flex; flex-wrap: wrap; gap: 8px 28px; margin-top: 14px; font-size: 13.5px; color: var(--muted); }
+.widget-stats b { font-family: var(--mono); font-weight: 500; font-size: 13px; color: var(--ink); }
+.widget-stats .sub { color: var(--faint); font-size: 12.5px; }
+.widget-foot { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px 20px; margin-top: 12px; }
+.widget-legend { display: flex; flex-wrap: wrap; gap: 4px 18px; font-size: 12.5px; color: var(--muted); }
+.widget-legend .sw { display: inline-block; width: 18px; height: 0; margin-right: 6px; vertical-align: middle; border-top: 2px solid var(--ink); }
+.widget-legend .sw.base { border-top: 1.5px dashed var(--faint); }
+.w-axis { stroke: var(--rule-strong); stroke-width: 1; fill: none; }
+.w-grid { stroke: var(--rule); stroke-width: 1; }
+.w-tick { fill: var(--faint); font-family: var(--mono); font-size: 10px; }
+.w-shock { stroke: var(--faint); stroke-width: 1; stroke-dasharray: 2 3; }
+.w-base { stroke: var(--faint); stroke-width: 1.5; stroke-dasharray: 5 4; fill: none; }
+.w-cur { stroke: var(--ink); stroke-width: 2; fill: none; }
+@media (max-width: 640px) {
+  .widget { padding: 14px 14px 16px; }
+  .widget-controls, .widget-plots { grid-template-columns: 1fr; }
 }
 
 /* ---------- CV ---------- */
@@ -476,6 +598,7 @@ html[lang="zh-CN"] .page-title { letter-spacing: .14em; }
   .intro-name, .cv-name { font-size: 30px; }
   .page-title { font-size: 26px; }
   .pub-page .page-title { font-size: 23px; }
+  .project-title { font-size: 24px; }
 
   .pub { grid-template-columns: minmax(0, 1fr); row-gap: 4px; }
   .pub-tag { flex-direction: row; gap: 10px; padding-top: 0; }

@@ -1,0 +1,75 @@
+---
+layout: project
+title: "劳动力市场信息摩擦的认知视角"
+title_zh: "劳动力市场信息摩擦的认知视角"
+description: "论文《A Cognitive Perspective on Information Frictions in Labor Markets》（Entropy，2025）的项目主页。"
+pub: /publication/entropy
+lang: zh
+nav: /chinese/publications/
+alt: /demos/entropy/
+affiliations:
+  - "德国乌尔姆大学 神经信息处理研究所"
+  - "日本名古屋大学 经济学系"
+author_affil: [1, 2]
+links:
+  - { label: "论文", url: "https://www.mdpi.com/1099-4300/27/12/1182" }
+  - { label: "DOI", url: "https://doi.org/10.3390/e27121182" }
+bibtex: |
+  @article{zhang2025cognitive,
+    title   = {A Cognitive Perspective on Information Frictions in Labor Markets},
+    author  = {Zhang, Zeqiang and Chen, Ruxin},
+    journal = {Entropy},
+    volume  = {27},
+    number  = {12},
+    pages   = {1182},
+    year    = {2025},
+    doi     = {10.3390/e27121182}
+  }
+---
+<section class="section">
+  <h2 class="label">摘要</h2>
+  <p>在大衰退期间，劳动力市场往往表现为失业率恢复缓慢、贝弗里奇曲线持续外移，这意味着就业匹配过程的效率下降。这一现象通常用劳动者的搜寻强度来解释；我们认为搜寻行为的方向同样重要，并基于自由能原理提出了一个风格化的理论模型。模型中的主体主动在申请工作和了解市场新状态之间分配精力。我们的框架表明，不确定性较高时，主体会内生地把精力从申请工作转向学习。在这一微观基础上，我们构建了一个宏观经济模型，其中匹配效率不再是外生参数，而是由两个认知因素决定：信念有误的失业者所占比例，以及信息正确者的平均学习投入。仿真结果显示，结构性冲击会造成广泛的不确定性，使精力转向学习并压低匹配效率，随后的缓慢恢复取决于集体信念的重新校准。我们的工作为观察到的失业持续性和贝弗里奇曲线的移动提供了一种认知层面的解释。</p>
+</section>
+
+<section class="section">
+  <h2 class="label">模型</h2>
+  <p>结构性变化发生后，求职者并不知道劳动力市场处于哪种状态。每个劳动者把一单位精力分配到了解市场信息（比例 <i>α</i>）和申请工作（1 − <i>α</i>）两方面。在主动推断框架下，劳动者选择使预期自由能最小的分配方式；预期自由能包含实用项（找到工作）和认知项（减少对市场状态的不确定性）。基于错误信念的申请很少成功。</p>
+  <p>将这些劳动者加总后，匹配效率成为内生变量，由信念有误的失业者比例 <i>λ<sub>t</sub></i> 和信息正确者的平均信息收集投入 <i>ᾱ<sub>t</sub></i> 共同决定。<i>λ<sub>t</sub></i> 受三方面影响：新失业者的流入、信息正确者更快地找到工作，以及以速率 <i>k</i> 进行的学习。平均投入随集体不确定性上升，不确定性用信念分布的熵衡量，敏感度为 <i>c</i>。</p>
+  <figure class="fig">
+    <img src="{{ '/images/entropy.png' | relative_url }}" alt="概览：市场变革带来不确定性；求职者在更新信念和申请工作之间分配精力；匹配效率等于 (1 − λ)(1 − ᾱ)μ0。" loading="lazy">
+    <figcaption><b>图 1.</b> 概览。匹配效率 <i>μ<sub>t</sub></i> = (1 − <i>λ<sub>t</sub></i>)(1 − <i>ᾱ<sub>t</sub></i>) <i>μ</i><sub>0</sub> 随劳动者的集体信念和不确定性变化。</figcaption>
+  </figure>
+</section>
+
+<section class="section">
+  <h2 class="label">结果</h2>
+  <h3>个体劳动者</h3>
+  <p>市场状态改变后，劳动者对旧状态的信念逐渐下降，精力从申请工作转向收集信息；信念调整完成后，精力又回到申请工作上。在各个时期，信息收集投入随信念熵的增大而增加。</p>
+  <figure class="fig">
+    <img src="../fig_belief_effort.png" alt="60 个时间步内的搜寻投入 α 和对旧经济状态的信念；第 30 步冲击后，信念下降，α 升至约 0.67 后回落。" loading="lazy">
+    <figcaption><b>图 2.</b> 信念与搜寻投入对结构性冲击的动态响应：主体对初始市场状态的信念，以及用于信息收集的精力比例 <i>α</i>。永久性结构冲击发生在 <i>t</i> = 30。</figcaption>
+  </figure>
+  <figure class="fig fig--narrow">
+    <img src="../fig_effort_entropy.png" alt="信念熵与搜寻投入 α 的散点图及递增的线性拟合。" loading="lazy">
+    <figcaption><b>图 3.</b> 信息收集投入 <i>α<sub>t</sub></i> 与主体信念熵 <i>H<sub>t</sub></i> 的关系。</figcaption>
+  </figure>
+
+  <h3>劳动力市场</h3>
+  <p>提高信念有误者比例的冲击会增加集体不确定性，并把精力从申请工作中抽走。认知匹配通道和工作发现率随之下降，失业率上升，并随着信念重新校准而缓慢回落。由于匹配效率下降会使贝弗里奇曲线外移，模型由此把这种缓慢恢复与贝弗里奇曲线的持续外移联系起来。</p>
+  <figure class="fig">
+    <img src="../fig_impulse_response.png" alt="六个脉冲响应子图：信念有误者比例、信念熵、搜寻强度、认知匹配通道、工作发现率和失业率，冲击发生在 t = 50。" loading="lazy">
+    <figcaption><b>图 4.</b> <i>t</i> = 50 时的一次性结构冲击提高了信念有误者比例 <i>λ<sub>t</sub></i>，空缺率保持不变。各子图依次为信念偏差、不确定性、信息投入、认知匹配通道、工作发现率和失业率的脉冲响应。</figcaption>
+  </figure>
+</section>
+
+<section class="section">
+  <h2 class="label">政策含义</h2>
+  <p>模型给出两个政策着力点。加快信念校准（提高 <i>k</i>），例如通过就业咨询和反馈及时的再培训，可以缩短信念偏差阶段；改善信息环境（降低 <i>c</i>），例如提供更清晰的职位与技能信息，可以减少信息正确者花在学习上的精力。两者都能降低稳态失业率并缩短恢复时间。</p>
+  <figure class="fig">
+    <img src="../fig_policy.png" alt="以学习速度 k 和不确定性敏感度 c 为坐标的两张热力图：稳态失业率，以及工作发现率恢复到 95% 所需的步数；两者在 k 较高、c 较低时最小。" loading="lazy">
+    <figcaption><b>图 5.</b> 左：稳态失业率随学习速度 <i>k</i> 和不确定性敏感度 <i>c</i> 的变化。右：工作发现率恢复到冲击前水平 95% 所需的步数。</figcaption>
+  </figure>
+  <p>下面的仿真对选定的 (<i>k</i>, <i>c</i>) 运行图 4 中的模型，并与基准参数比较。</p>
+  <div class="widget" data-widget="policy" data-lang="zh"></div>
+</section>
+<script src="../policy.js" defer></script>

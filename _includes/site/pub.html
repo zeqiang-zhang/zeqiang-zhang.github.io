@@ -22,7 +22,7 @@
     {%- endunless %}
     <div class="pub-links">
       {%- if p.paperurl %}<a href="{{ p.paperurl }}">{{ t.paper }}</a>{% endif -%}
-      {%- if p.demourl %}<a href="{{ p.demourl | relative_url }}">{{ t.project }}</a>{% endif -%}
+      {%- if p.demourl %}<a href="{% if lang == 'zh' %}{{ p.demourl | append: 'zh/' | relative_url }}{% else %}{{ p.demourl | relative_url }}{% endif %}">{{ t.project }}</a>{% endif -%}
       {%- if abstract != "" %}<button type="button" class="pub-toggle" aria-expanded="false" aria-controls="abs-{{ uid }}">{{ t.abstract }}</button>{% endif -%}
     </div>
     {%- if abstract != "" %}
