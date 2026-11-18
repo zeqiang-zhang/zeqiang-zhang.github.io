@@ -11,9 +11,6 @@ main:
   - title: "Publications"
     url: /publications/
 
-  - title: "Talks"
-    url: /talks/    
-
   # - title: "Teaching"
   #   url: /teaching/    
     
@@ -39,8 +36,6 @@ en:
     url: /
   - title: "Publications"
     url: /publications/
-  - title: "Talks"
-    url: /talks/
   - title: "CV"
     url: /cv/
 
@@ -49,7 +44,5 @@ zh:
     url: /chinese/
   - title: "论文"
     url: /chinese/publications/
-  - title: "报告"
-    url: /chinese/talks/
   - title: "简历"
     url: /chinese/cv/

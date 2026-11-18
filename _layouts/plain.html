@@ -3,9 +3,6 @@ layout: base
 ---
 <header class="page-head">
   <h1 class="page-title">{{ page.title }}</h1>
-  {%- if page.collection == "talks" %}
-  <p class="page-sub">{{ page.venue }}{% if page.location %} · {{ page.location }}{% endif %} · {{ page.date | date: "%b %Y" }}</p>
-  {%- endif %}
 </header>
 <div class="prose">
 {{ content }}

@@ -304,7 +304,7 @@ html[lang="zh-CN"] .cv-name { letter-spacing: .14em; }
 html[lang="zh-CN"] .page-title { letter-spacing: .14em; }
 .page-sub, .page-note { margin: 10px 0 0; font-size: 14.5px; color: var(--muted); }
 
-/* ---------- Publication & talk lists ---------- */
+/* ---------- Publication lists ---------- */
 
 .pub {
   display: grid;
@@ -367,7 +367,6 @@ html[lang="zh-CN"] .page-title { letter-spacing: .14em; }
 }
 .year::after { content: ""; flex: 1; height: 1px; background: var(--rule-strong); }
 
-.talk-list { margin-top: 28px; }
 
 /* ---------- Single publication page ---------- */
 
